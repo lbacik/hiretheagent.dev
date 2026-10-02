@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="850" viewBox="0 0 1680 850" role="img" aria-labelledby="title desc">
+<title id="title">Workflow — from idea to merged change</title>
+<desc id="desc">Proposed delivery workflow. A developer supported by Claude Code or Codex uses a high-capability model for idea and planning, by breaking down the work and defining acceptance criteria. Specified ready-for-agent issues pass to Coding Agent for implementation, testing and pull request creation. A human reviews, approves and merges after checks pass. Requested changes return to implementation; this is a proposed feedback path, not a claim of automatic PR review handling.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#7e8fa4"/></marker><marker id="feedback" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#9a6d27"/></marker></defs>
+<style>text{font-family:Arial,sans-serif;fill:#20334a} .title{font-size:36px;font-weight:700} .meta{font-size:18px;fill:#64748b} .name{font-size:28px;font-weight:700} .body{font-size:18px} .small{font-size:16px;fill:#64748b} .owner{font-size:18px;font-weight:700} .link{font-size:17px;fill:#315aa5} a:hover .link{text-decoration:underline}</style>
+<rect width="1680" height="850" fill="#f6f8fb"/>
+<text x="64" y="68" class="title">Workflow</text>
+<text x="64" y="103" class="meta">from idea to merged change</text>
+<path d="M64 136 H1616" stroke="#dbe2eb"/>
+<rect x="64" y="170" width="744" height="92" rx="16" fill="#e9effa"/>
+<text x="88" y="205" class="owner">Developer + coding agent</text>
+<text x="88" y="237" class="body">Claude Code / Codex</text>
+<rect x="545" y="194" width="239" height="43" rx="21" fill="#d7e3f7"/>
+<text x="664" y="221" text-anchor="middle" class="small" style="fill:#315aa5;font-weight:700">High-capability model</text>
+<rect x="872" y="170" width="352" height="92" rx="16" fill="#e6f1ed"/>
+<text x="896" y="205" class="owner">Coding Agent</text>
+<text x="896" y="237" class="body">Autonomous implementation</text>
+<rect x="1280" y="170" width="336" height="92" rx="16" fill="#f3ecdf"/>
+<text x="1304" y="205" class="owner">Human reviewer</text>
+<text x="1304" y="237" class="body">Approval + merge</text>
+
+<rect x="64" y="300" width="352" height="326" rx="18" fill="#ffffff" stroke="#dbe2eb"/><rect x="88" y="324" width="43" height="36" rx="10" fill="#537cbd" fill-opacity="0.12"/><text x="109" y="348" text-anchor="middle" class="small" style="fill:#537cbd;font-weight:700">01</text>
+<text x="88" y="405" class="name">Idea</text>
+<text x="88" y="450" dy="0" class="body" style="font-size:18px">Explore the problem</text>
+<text x="88" y="450" dy="29" class="body" style="font-size:18px">Define the desired outcome</text>
+<path d="M88 503 H392" stroke="#e3e9f1"/><text x="88" y="536" class="small" style="font-size:13px;letter-spacing:1.5px;font-weight:700">DELIVERABLE</text>
+<text x="88" y="568" dy="0" class="body" style="font-size:17px;fill:#537cbd">Clear intent + scope</text>
+<rect x="456" y="300" width="352" height="326" rx="18" fill="#ffffff" stroke="#dbe2eb"/><rect x="480" y="324" width="43" height="36" rx="10" fill="#537cbd" fill-opacity="0.12"/><text x="501" y="348" text-anchor="middle" class="small" style="fill:#537cbd;font-weight:700">02</text>
+<text x="480" y="405" class="name">Planning</text>
+<text x="480" y="450" dy="0" class="body" style="font-size:18px">Break down the work</text>
+<text x="480" y="450" dy="29" class="body" style="font-size:18px">Define acceptance criteria</text>
+<path d="M480 503 H784" stroke="#e3e9f1"/><text x="480" y="536" class="small" style="font-size:13px;letter-spacing:1.5px;font-weight:700">DELIVERABLE</text>
+<text x="480" y="568" dy="0" class="body" style="font-size:17px;fill:#537cbd">Specified GitHub issues</text>
+<text x="480" y="568" dy="26" class="body" style="font-size:17px;fill:#537cbd">ready-for-agent</text>
+<rect x="872" y="300" width="352" height="326" rx="18" fill="#ffffff" stroke="#dbe2eb"/><rect x="896" y="324" width="43" height="36" rx="10" fill="#42816c" fill-opacity="0.12"/><text x="917" y="348" text-anchor="middle" class="small" style="fill:#42816c;font-weight:700">03</text>
+<text x="896" y="405" class="name">Implementation</text>
+<text x="896" y="450" dy="0" class="body" style="font-size:18px">Implement · test · review</text>
+<text x="896" y="450" dy="29" class="body" style="font-size:18px">Commit + publish changes</text>
+<path d="M896 503 H1200" stroke="#e3e9f1"/><text x="896" y="536" class="small" style="font-size:13px;letter-spacing:1.5px;font-weight:700">DELIVERABLE</text>
+<text x="896" y="568" dy="0" class="body" style="font-size:17px;fill:#42816c">Pull request + evidence</text>
+<rect x="1280" y="300" width="336" height="326" rx="18" fill="#ffffff" stroke="#dbe2eb"/><rect x="1304" y="324" width="43" height="36" rx="10" fill="#9a793f" fill-opacity="0.12"/><text x="1325" y="348" text-anchor="middle" class="small" style="fill:#9a793f;font-weight:700">04</text>
+<text x="1304" y="405" class="name">PR review &amp; merge</text>
+<text x="1304" y="450" dy="0" class="body" style="font-size:18px">Review the proposed change</text>
+<text x="1304" y="450" dy="29" class="body" style="font-size:18px">Approve + merge</text>
+<path d="M1304 503 H1592" stroke="#e3e9f1"/><text x="1304" y="536" class="small" style="font-size:13px;letter-spacing:1.5px;font-weight:700">MERGE GATE</text>
+<text x="1304" y="568" dy="0" class="body" style="font-size:17px;fill:#9a793f">Acceptance criteria met</text>
+<text x="1304" y="568" dy="26" class="body" style="font-size:17px;fill:#9a793f">Checks pass + human approval</text>
+<path d="M423 412 H448" stroke="#7e8fa4" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M815 412 H864" stroke="#7e8fa4" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1231 412 H1272" stroke="#7e8fa4" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1448 626 V688 H1048 V632" fill="none" stroke="#9a6d27" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#feedback)"/>
+<rect x="1113" y="672" width="266" height="31" rx="8" fill="#f6f8fb"/>
+<text x="1246" y="693" text-anchor="middle" class="small" style="fill:#9a6d27">Requested changes → rework</text>
+<text x="64" y="774" class="meta">Human-led discovery &amp; planning</text>
+<text x="872" y="774" class="meta">Agent execution</text>
+<text x="1280" y="774" class="meta">Human release decision</text>
+<text x="64" y="813" class="small">Proposed workflow · dashed arrow: feedback path; automation of PR feedback is outside this diagram.</text>
+</svg>
