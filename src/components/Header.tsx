@@ -26,6 +26,12 @@ export function Header() {
             <span>Workflow</span>
           </a>
           <a
+            href="#projects"
+            className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
+          >
+            <span>Projects</span>
+          </a>
+          <a
             href="#newsletter"
             className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold px-4 py-2 rounded-xl transition-all shadow-sm hover:shadow-md hover:shadow-blue-600/20 active:scale-95"
           >

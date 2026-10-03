@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Check, CheckCircle2, Loader2 } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");

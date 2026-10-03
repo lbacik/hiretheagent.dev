@@ -1,6 +1,7 @@
 import { Check, Sparkles } from "lucide-react";
 import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
+import { ActiveProjects } from "./ActiveProjects";
 
 export function Hero() {
   return (
@@ -46,6 +47,9 @@ export function Hero() {
 
       {/* Mailing & Waitlist Form */}
       <WaitlistForm />
+
+      {/* Active Projects Panel */}
+      <ActiveProjects />
     </section>
   );
 }
