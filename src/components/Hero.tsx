@@ -1,3 +1,4 @@
+import { Check, Sparkles } from "lucide-react";
 import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 
@@ -10,10 +11,7 @@ export function Hero() {
         Autonomous agent for software engineers &amp; dev teams
       </div>
 
-      {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
-      <InteractiveWorkflow />
-
-      <div className="max-w-3xl mx-auto mt-10 sm:mt-14">
+      <div className="max-w-3xl mx-auto">
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-6xl font-extrabold font-display tracking-tight text-slate-950 leading-[1.12]">
           Hire an agent that{" "}
@@ -32,9 +30,22 @@ export function Hero() {
           label. Agent Sid picks up the task, spins up an isolated Docker sandbox, runs test suites, writes the code, and delivers a verified Pull Request.
         </p>
 
-        {/* Mailing & Waitlist Form */}
-        <WaitlistForm />
+        {/* Key Product Highlights */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm font-mono text-slate-600">
+          <span className="inline-flex items-center gap-1.5 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-lg">
+            <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" /> Docker templates included
+          </span>
+          <span className="inline-flex items-center gap-1.5 bg-slate-100/90 border border-slate-200/90 px-3 py-1 rounded-lg">
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" /> Bring your own LLM
+          </span>
+        </div>
       </div>
+
+      {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
+      <InteractiveWorkflow />
+
+      {/* Mailing & Waitlist Form */}
+      <WaitlistForm />
     </section>
   );
 }

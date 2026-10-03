@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Zap } from "lucide-react";
+import { Mail, Bot } from "lucide-react";
 
 function GithubIcon({ className = "w-3.5 h-3.5 fill-current" }: { className?: string }) {
   return (
@@ -15,14 +15,14 @@ export function Footer() {
       <div className="max-w-6xl mx-auto flex flex-col items-center justify-center text-center text-xs font-mono text-slate-500 gap-4">
         {/* Brand line */}
         <div className="flex items-center gap-2 text-slate-700 font-semibold">
-          <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
+          <Bot className="w-4 h-4 text-blue-600" />
           <span>hiretheagent.dev</span>
           <span className="text-slate-300">•</span>
           <span className="text-slate-500 font-normal">Autonomous AI agents for software engineering teams</span>
         </div>
 
-        {/* Links */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-slate-600">
+        {/* Contact Email */}
+        <div className="flex flex-wrap items-center justify-center text-slate-600">
           <a
             href="mailto:contact@hiretheagent.dev"
             className="inline-flex items-center gap-1.5 hover:text-blue-600 transition-colors"
@@ -30,6 +30,19 @@ export function Footer() {
             <Mail className="w-3.5 h-3.5" />
             <span>contact@hiretheagent.dev</span>
           </a>
+        </div>
+
+        {/* GitHub Repositories */}
+        <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-6 text-slate-600">
+          <Link
+            href="https://github.com/lbacik/agent-forge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:text-blue-600 transition-colors"
+          >
+            <GithubIcon className="w-3.5 h-3.5 fill-current" />
+            <span>agent-forge</span>
+          </Link>
           <Link
             href="https://github.com/lbacik/simple-coding-agent"
             target="_blank"
@@ -38,6 +51,15 @@ export function Footer() {
           >
             <GithubIcon className="w-3.5 h-3.5 fill-current" />
             <span>simple-coding-agent</span>
+          </Link>
+          <Link
+            href="https://github.com/lbacik/coding-agent"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:text-blue-600 transition-colors"
+          >
+            <GithubIcon className="w-3.5 h-3.5 fill-current" />
+            <span>coding-agent</span>
           </Link>
         </div>
 

@@ -265,7 +265,7 @@ export function InteractiveWorkflow() {
     <div
       ref={workflowContainerRef}
       id="workflow"
-      className={`w-full mx-auto my-6 sm:my-8 transition-all duration-300 ease-in-out text-left ${
+      className={`w-full mx-auto mt-6 sm:mt-8 mb-0 scroll-mt-20 transition-all duration-300 ease-in-out text-left ${
         isExpandedWidth ? "max-w-5xl lg:max-w-6xl" : "max-w-xl sm:max-w-2xl"
       }`}
     >

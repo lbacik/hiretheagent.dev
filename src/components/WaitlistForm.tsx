@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Check, CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { Check, CheckCircle2, Loader2 } from "lucide-react";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
@@ -23,17 +23,30 @@ export function WaitlistForm() {
   };
 
   return (
-    <div id="waitlist" className="mt-8 max-w-md mx-auto scroll-mt-28">
+    <div id="newsletter" className="mt-16 sm:mt-24 max-w-md mx-auto scroll-mt-28">
+      {/* Anchor alias for backward compatibility */}
+      <span id="waitlist" className="scroll-mt-28 -top-28 relative block" />
+
+      {/* Newsletter Section Header */}
+      <div className="text-center mb-3">
+        <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
+          Newsletter
+        </h3>
+        <p className="text-xs text-slate-500 font-mono mt-0.5">
+          Sign up to receive updates on agent releases, benchmarks, and early access.
+        </p>
+      </div>
+
       {status === "success" ? (
         <div className="bg-emerald-50 border border-emerald-300/80 rounded-2xl p-5 text-center shadow-lg shadow-emerald-500/5 animate-in fade-in zoom-in-95 duration-200">
           <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-3">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <h3 className="font-display font-bold text-slate-900 text-base">
-            You&apos;re on the early access list!
+            You&apos;re subscribed to our newsletter!
           </h3>
           <p className="text-xs text-slate-600 mt-1 font-mono">
-            We saved <span className="font-semibold text-slate-800">{submittedEmail}</span>. You&apos;ll be among the first to get access when invitations roll out.
+            We saved <span className="font-semibold text-slate-800">{submittedEmail}</span>. You&apos;ll receive updates on agent releases, benchmarks, and early access.
           </p>
           <button
             type="button"
@@ -50,11 +63,11 @@ export function WaitlistForm() {
             className="flex flex-col sm:flex-row gap-2 bg-white p-2 rounded-2xl border border-slate-300 shadow-xl shadow-slate-200/50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200"
           >
             <div className="relative flex-1">
-              <label htmlFor="waitlist-email" className="sr-only">
+              <label htmlFor="newsletter-email" className="sr-only">
                 Email address
               </label>
               <input
-                id="waitlist-email"
+                id="newsletter-email"
                 name="email"
                 type="email"
                 required
@@ -63,40 +76,24 @@ export function WaitlistForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your-email@dev.io"
-                disabled={status === "loading"}
-                className="w-full h-full bg-transparent px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none disabled:opacity-60 font-sans"
+                disabled
+                className="w-full h-full bg-slate-50/50 px-4 py-2.5 text-sm text-slate-400 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed font-sans"
               />
             </div>
             <button
-              type="submit"
-              disabled={status === "loading"}
-              className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-blue-400 text-white font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all shadow hover:shadow-md flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:cursor-not-allowed"
+              type="button"
+              disabled
+              title="Newsletter is coming soon!"
+              className="bg-slate-200 text-slate-400 border border-slate-300/70 font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 cursor-not-allowed select-none"
             >
-              {status === "loading" ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Joining...</span>
-                </>
-              ) : (
-                <>
-                  <span>Join the Waitlist</span>
-                  <span aria-hidden="true">→</span>
-                </>
-              )}
+              <span>Newsletter: Coming Soon!</span>
             </button>
           </form>
 
-          {/* Trust badges */}
-          <div className="text-[11px] text-slate-500 font-mono mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-            <span className="flex items-center gap-1">
-              <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" /> Zero spam
-            </span>
-            <span className="flex items-center gap-1">
-              <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" /> Docker templates included
-            </span>
-            <span className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-blue-500" /> Bring your own LLM
-            </span>
+          {/* Trust badge */}
+          <div className="text-[11px] text-slate-500 font-mono mt-3 flex items-center justify-center gap-1.5">
+            <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />
+            <span>Zero spam • Updates on releases &amp; benchmarks</span>
           </div>
         </>
       )}
