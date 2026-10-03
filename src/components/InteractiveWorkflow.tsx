@@ -6,7 +6,6 @@ import {
   Sparkles,
   GitPullRequest,
   CheckCircle2,
-  Terminal,
   Play,
   Pause,
   RotateCcw,
@@ -28,6 +27,7 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
+import { WorkflowSimulationHUD } from "./WorkflowSimulationHUD";
 
 interface StepData {
   id: string;
@@ -166,9 +166,12 @@ export function InteractiveWorkflow() {
   const [diagramScale, setDiagramScale] = useState<"0.5x" | "1x">("0.5x");
   const [activeStep, setActiveStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSimulationHUDOpen, setIsSimulationHUDOpen] = useState(false);
   const [feedbackFlash, setFeedbackFlash] = useState(false);
   const [mergeApproved, setMergeApproved] = useState(false);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const workflowContainerRef = useRef<HTMLDivElement>(null);
+  const stagesSectionRef = useRef<HTMLDivElement>(null);
   const [zoomedDiagram, setZoomedDiagram] = useState<{
     src: string;
     title: string;
@@ -188,24 +191,63 @@ export function InteractiveWorkflow() {
     }
   }, [zoomedDiagram]);
 
-  // Auto-play simulation cycle
+  const scrollToWorkflow = () => {
+    const target = workflowContainerRef.current || stagesSectionRef.current;
+    if (target) {
+      const headerOffset = 76; // header height + margin
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const handleStartSimulation = () => {
+    setViewMode("interactive");
+    setActiveStep(0);
+    setIsPlaying(true);
+    setIsSimulationHUDOpen(true);
+    // Allow DOM update before scrolling smoothly to the workflow top
+    setTimeout(() => {
+      scrollToWorkflow();
+    }, 60);
+  };
+
+  const handleToggleSimulation = () => {
+    if (viewMode !== "interactive") {
+      handleStartSimulation();
+      return;
+    }
+    const nextState = !isPlaying;
+    setIsPlaying(nextState);
+    if (nextState) {
+      setIsSimulationHUDOpen(true);
+      scrollToWorkflow();
+    }
+  };
+
+  // Fallback auto-play cycle only when simulation HUD is closed (no loop)
   useEffect(() => {
-    if (isPlaying && viewMode === "interactive") {
+    if (isPlaying && viewMode === "interactive" && !isSimulationHUDOpen) {
       autoPlayTimerRef.current = setTimeout(() => {
         setActiveStep((prev) => {
           if (prev === STEPS.length - 1) {
+            setIsPlaying(false);
             return 0;
           }
           return prev + 1;
         });
-      }, 4200);
+      }, 5000);
     } else if (autoPlayTimerRef.current) {
       clearTimeout(autoPlayTimerRef.current);
     }
     return () => {
       if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
     };
-  }, [isPlaying, activeStep, viewMode]);
+  }, [isPlaying, activeStep, viewMode, isSimulationHUDOpen]);
 
   const handleTriggerFeedbackLoop = () => {
     setFeedbackFlash(true);
@@ -221,6 +263,7 @@ export function InteractiveWorkflow() {
 
   return (
     <div
+      ref={workflowContainerRef}
       id="workflow"
       className={`w-full mx-auto my-6 sm:my-8 transition-all duration-300 ease-in-out text-left ${
         isExpandedWidth ? "max-w-5xl lg:max-w-6xl" : "max-w-xl sm:max-w-2xl"
@@ -259,11 +302,11 @@ export function InteractiveWorkflow() {
             <>
               <button
                 type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-semibold transition-all shadow-sm cursor-pointer ${
+                onClick={handleToggleSimulation}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
                   isPlaying
-                    ? "bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100"
-                    : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                    ? "bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 ring-2 ring-amber-400/20"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent shadow-emerald-600/20 shadow-md"
                 }`}
               >
                 {isPlaying ? (
@@ -279,11 +322,27 @@ export function InteractiveWorkflow() {
                 )}
               </button>
 
+              {!isSimulationHUDOpen && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSimulationHUDOpen(true);
+                    scrollToWorkflow();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold transition-colors cursor-pointer text-xs font-mono"
+                  title="Otwórz panel lektora i animacji (Simulation Player)"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="hidden sm:inline">Voice &amp; HUD</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
                   setViewMode("blueprint");
                   setIsPlaying(false);
+                  setIsSimulationHUDOpen(false);
                 }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold transition-colors cursor-pointer"
                 title="Collapse to compact diagram (0.5x size)"
@@ -297,11 +356,24 @@ export function InteractiveWorkflow() {
             <>
               <button
                 type="button"
-                onClick={() => setViewMode("interactive")}
+                onClick={handleStartSimulation}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono text-xs font-bold transition-all shadow-md hover:shadow-emerald-600/20 active:scale-95 cursor-pointer"
+                title="Start pipeline simulation with voice narration & animations"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Simulate</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setViewMode("interactive");
+                  setTimeout(() => scrollToWorkflow(), 60);
+                }}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm hover:shadow hover:shadow-blue-600/20 active:scale-95 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Switch to Interactive Mode</span>
+                <span>Interactive Mode</span>
                 <ChevronRight className="w-3 h-3 ml-0.5 opacity-80" />
               </button>
 
@@ -349,29 +421,16 @@ export function InteractiveWorkflow() {
            ARCHITECTURE DIAGRAM (COMPACT 0.5X OR EXPANDED 1.0X)
            ========================================================================= */
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-soft p-3 sm:p-5 overflow-hidden animate-in fade-in duration-200">
-          {/* Clickable Diagram Container */}
-          <div
-            onClick={() => setViewMode("interactive")}
-            className="group relative rounded-xl border border-slate-200/80 overflow-hidden bg-[#f6f8fb] shadow-inner p-2 cursor-pointer transition-all hover:border-blue-400 hover:shadow-md"
-            title="Click to switch to interactive mode and step through pipeline"
-          >
+          {/* Diagram Container */}
+          <div className="relative rounded-xl border border-slate-200/80 overflow-hidden bg-[#f6f8fb] shadow-inner p-2">
             <Image
               src="/charts/workflow-en.svg"
               alt="Workflow — from idea to merged change"
               width={1680}
               height={850}
-              className="w-full h-auto rounded-lg shadow-sm transition-transform duration-200 group-hover:scale-[1.005]"
+              className="w-full h-auto rounded-lg shadow-sm"
               priority
             />
-
-            {/* Subtle Hover Action Pill */}
-            <div className="absolute inset-0 bg-blue-950/0 group-hover:bg-blue-950/10 transition-colors flex items-center justify-center pointer-events-none">
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/90 backdrop-blur-sm text-white text-xs font-mono font-bold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 duration-200">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                Click to explore interactive mode
-                <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
-              </span>
-            </div>
           </div>
 
           {/* Quick Caption Strip */}
@@ -381,7 +440,10 @@ export function InteractiveWorkflow() {
             </span>
             <button
               type="button"
-              onClick={() => setViewMode("interactive")}
+              onClick={() => {
+                setViewMode("interactive");
+                setTimeout(() => scrollToWorkflow(), 60);
+              }}
               className="text-blue-600 hover:text-blue-700 font-semibold underline underline-offset-2 text-left sm:text-right cursor-pointer"
             >
               Explore 4 stages interactively →
@@ -392,7 +454,10 @@ export function InteractiveWorkflow() {
         /* =========================================================================
            EXPANDED INTERACTIVE PIPELINE (ORIGINAL FULL SIZE)
            ========================================================================= */
-        <div className="space-y-6 animate-in fade-in zoom-in-[0.99] duration-300">
+        <div
+          ref={stagesSectionRef}
+          className="space-y-6 animate-in fade-in zoom-in-[0.99] duration-300 scroll-mt-24"
+        >
           {/* 4-Stage Stepper Ribbon */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
             {STEPS.map((step, idx) => {
@@ -852,6 +917,7 @@ export function InteractiveWorkflow() {
             </div>
             {/* Modal Image View */}
             <div className="p-3 sm:p-5 overflow-auto flex-1 flex items-center justify-center bg-slate-950/60 min-h-[300px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={zoomedDiagram.src}
                 alt={zoomedDiagram.title}
@@ -861,6 +927,20 @@ export function InteractiveWorkflow() {
           </div>
         </div>
       )}
+
+      {/* Voice & Animated Stage Illustration Simulation Controller */}
+      <WorkflowSimulationHUD
+        isOpen={isSimulationHUDOpen}
+        onClose={() => {
+          setIsSimulationHUDOpen(false);
+          setIsPlaying(false);
+        }}
+        activeStep={activeStep}
+        onStepChange={(stepIdx) => setActiveStep(stepIdx)}
+        isPlaying={isPlaying}
+        onTogglePlay={(playing) => setIsPlaying(playing)}
+        onRequestChangesRework={handleTriggerFeedbackLoop}
+      />
     </div>
   );
 }
