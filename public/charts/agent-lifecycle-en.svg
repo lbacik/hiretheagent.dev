@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1540" viewBox="0 0 1600 1540" role="img" aria-labelledby="title desc">
+<title id="title">Agent work cycle: simple-coding-agent v0.3.2</title>
+<desc id="desc">Startup and polling, claimed, setup, model_running, pushing, publishing, and finalization. Failed pushes and partial work go to the outcome comment. The agent can return to the issue queue after cleanup. Every node links to its source code. Skills used during model_running: implement, tdd, code-review, codebase-design, and conditional handoff.</desc>
+<defs><symbol id="github-icon" viewBox="0 0 24 24"><path d="M12 .297C5.37 .297 0 5.67 0 12.297c0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.043-1.61-4.043-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.729.083-.729 1.205.084 1.838 1.237 1.838 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.776.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.536-1.524.117-3.176 0 0 1.008-.322 3.301 1.23a11.52 11.52 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.873.119 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.625-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.595 24 12.297c0-6.627-5.373-12-12-12" fill="#1d4ed8"/></symbol><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#475569"/></marker><marker id="error" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#b42318"/></marker></defs>
+<style>text{font-family:Arial,sans-serif;fill:#172033}.heading{font-size:22px;font-weight:700}.node{font-size:20px}.source{font-size:15px;fill:#1d4ed8}.edge-label{font-size:17px;paint-order:stroke;stroke:#ffffff;stroke-width:7px;stroke-linejoin:round}.group-label{font-size:19px;font-weight:700}.meta{font-size:17px;fill:#475569}a:hover .box{stroke:#1d4ed8;stroke-width:3px}</style>
+<rect width="1600" height="1540" fill="#ffffff"/>
+<text x="60" y="48" class="heading">Agent work cycle</text>
+<text x="60" y="78" class="meta">simple-coding-agent v0.3.2 · lifecycle phases and decision paths</text>
+<a href="https://github.com/lbacik/simple-coding-agent" target="_blank"><use href="#github-icon" x="1000" y="58" width="22" height="22"/><text x="1032" y="76" class="source">github.com/lbacik/simple-coding-agent</text></a>
+
+<rect x="60" y="130" width="1460" height="340" rx="16" fill="#f7f9fc" stroke="#b8c3d1" stroke-width="1.5"/>
+<text x="80" y="160" class="group-label">01  Startup and queue · outside attempt phases</text>
+<rect x="60" y="500" width="720" height="180" rx="16" fill="#f0f4ff" stroke="#9baee3" stroke-width="1.5"/>
+<text x="80" y="530" class="group-label">02  Lifecycle: claimed</text>
+<rect x="800" y="500" width="360" height="180" rx="16" fill="#f0f4ff" stroke="#9baee3" stroke-width="1.5"/>
+<text x="820" y="530" class="group-label">03  Lifecycle: setup</text>
+<rect x="60" y="740" width="1460" height="190" rx="16" fill="#f0f4ff" stroke="#9baee3" stroke-width="1.5"/>
+<text x="80" y="770" class="group-label">04  Lifecycle: model_running</text>
+<g><title>implement skill — model implementation workflow</title>
+<rect x="520" y="750" width="110" height="28" rx="14" fill="#e0f2fe" stroke="#0284c7"/>
+<text x="575.0" y="769" text-anchor="middle" style="font-size:15px;font-weight:700">implement</text></g>
+<g><title>tdd skill — model implementation workflow</title>
+<rect x="640" y="750" width="55" height="28" rx="14" fill="#e0f2fe" stroke="#0284c7"/>
+<text x="667.5" y="769" text-anchor="middle" style="font-size:15px;font-weight:700">tdd</text></g>
+<g><title>code-review skill — model implementation workflow</title>
+<rect x="705" y="750" width="120" height="28" rx="14" fill="#e0f2fe" stroke="#0284c7"/>
+<text x="765.0" y="769" text-anchor="middle" style="font-size:15px;font-weight:700">code-review</text></g>
+<g><title>codebase-design skill — model implementation workflow</title>
+<rect x="835" y="750" width="155" height="28" rx="14" fill="#e0f2fe" stroke="#0284c7"/>
+<text x="912.5" y="769" text-anchor="middle" style="font-size:15px;font-weight:700">codebase-design</text></g>
+<g><title>handoff · conditional skill — only when instructed: resource limit or operator request</title>
+<rect x="1000" y="750" width="190" height="28" rx="14" fill="#fff4cc" stroke="#b77900"/>
+<text x="1095.0" y="769" text-anchor="middle" style="font-size:15px;font-weight:700">handoff · conditional</text></g>
+<text x="100" y="922" class="meta" style="font-size:15px">Skills: implementation · tests · review · module design. Handoff: preserve work + commit note when instructed (limit / operator).</text>
+<rect x="60" y="980" width="360" height="190" rx="16" fill="#f0f4ff" stroke="#9baee3" stroke-width="1.5"/>
+<text x="80" y="1010" class="group-label">05  Lifecycle: pushing</text>
+<rect x="440" y="980" width="720" height="190" rx="16" fill="#f0f4ff" stroke="#9baee3" stroke-width="1.5"/>
+<text x="460" y="1010" class="group-label">06  Lifecycle: publishing</text>
+<rect x="60" y="1240" width="1460" height="190" rx="16" fill="#f7f9fc" stroke="#b8c3d1" stroke-width="1.5"/>
+<text x="800" y="1270" class="group-label">07  Outcome and cleanup · no separate lifecycle phase</text>
+<path d="M380 240 H460" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M740 240 H820" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1100 240 H1180" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1320 290 V390 H1100" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1220" y="380" text-anchor="middle" class="edge-label" style="fill:#475569">No</text>
+<path d="M960 340 V290" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1460 240 H1490 V485 H360 V560" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1370" y="485" text-anchor="middle" class="edge-label" style="fill:#475569">Yes</text>
+<path d="M380 610 H460" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M740 610 H840" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="790" y="599" text-anchor="middle" class="edge-label" style="fill:#475569">setup</text>
+<path d="M980 660 V710 H450 V790 H240 V800" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="600" y="710" text-anchor="middle" class="edge-label" style="fill:#475569">model_running</text>
+<path d="M380 850 H460" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M740 850 H820" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1100 850 H1180" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1320 900 V960 H360 V1040" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="780" y="960" text-anchor="middle" class="edge-label" style="fill:#475569">Yes · pushing</text>
+<path d="M1460 850 H1540 V1220 H240 V1300" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1390" y="1220" text-anchor="middle" class="edge-label" style="fill:#475569">No · no changes</text>
+<path d="M380 1090 H480" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="430" y="1078" text-anchor="middle" class="edge-label" style="fill:#475569">Pushed</text>
+<path d="M760 1090 H840" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="800" y="1078" text-anchor="middle" class="edge-label" style="fill:#475569">Yes</text>
+<path d="M240 1140 V1300" fill="none" stroke="#b42318" stroke-width="2" stroke-linejoin="round" stroke-dasharray="7 6" marker-end="url(#error)"/>
+<text x="240" y="1206" text-anchor="middle" class="edge-label" style="fill:#b42318">Push failed</text>
+<path d="M620 1140 V1200 H400 V1320 H380" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="700" y="1200" text-anchor="middle" class="edge-label" style="fill:#475569">No · partial work / handoff</text>
+<path d="M980 1140 V1185 H430 V1280 H240 V1300" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M380 1350 H460" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M740 1350 H820" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1100 1350 H1180" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1140" y="1338" text-anchor="middle" class="edge-label" style="fill:#475569">No</text>
+<path d="M960 1400 V1480 H30 V110 H960 V190" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="450" y="1480" text-anchor="middle" class="edge-label" style="fill:#475569">Yes · return to queue</text>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/__main__.py#L26" target="_blank"><title>Start up and validate the environment — view source code</title>
+<rect class="box" x="100" y="190" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="240" y="225" text-anchor="middle">Start up and validate</text>
+<text class="node" x="240" y="248" text-anchor="middle">the environment</text>
+<text x="240" y="278" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="185" y="264" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L3211" target="_blank"><title>Recover an unfinished attempt — view source code</title>
+<rect class="box" x="460" y="190" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="600" y="225" text-anchor="middle">Recover an</text>
+<text class="node" x="600" y="248" text-anchor="middle">unfinished attempt</text>
+<text x="600" y="278" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="545" y="264" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/github_tracker.py#L145" target="_blank"><title>Fetch the issue queue — view source code</title>
+<rect class="box" x="820" y="190" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="960" y="225" text-anchor="middle">Fetch the</text>
+<text class="node" x="960" y="248" text-anchor="middle">issue queue</text>
+<text x="960" y="278" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="905" y="264" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/github_tracker.py#L190" target="_blank"><title>Issue ready for the agent? — view source code</title>
+<path class="box" d="M1320 190 L1460 240 L1320 290 L1180 240 Z" fill="#fff4cc" stroke="#b77900" stroke-width="1.8"/>
+<text class="node" x="1320" y="220" text-anchor="middle">Issue ready</text>
+<text class="node" x="1320" y="243" text-anchor="middle">for the agent?</text>
+<text x="1320" y="264" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="1265" y="250" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L2289-L2293" target="_blank"><title>Wait for the polling interval — view source code</title>
+<rect class="box" x="820" y="340" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="960" y="375" text-anchor="middle">Wait for the</text>
+<text class="node" x="960" y="398" text-anchor="middle">polling interval</text>
+<text x="960" y="428" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="905" y="414" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L2539" target="_blank"><title>Claim the issue and save attempt state — view source code</title>
+<rect class="box" x="100" y="560" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="240" y="595" text-anchor="middle">Claim the issue and</text>
+<text class="node" x="240" y="618" text-anchor="middle">save attempt state</text>
+<text x="240" y="648" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="185" y="634" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L2310-L2345" target="_blank"><title>Read repository profile; prepare working branch — view source code</title>
+<rect class="box" x="460" y="560" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="600" y="595" text-anchor="middle">Read repository profile;</text>
+<text class="node" x="600" y="618" text-anchor="middle">prepare working branch</text>
+<text x="600" y="648" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="545" y="634" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/completion.py#L78" target="_blank"><title>Prepare the environment; check the baseline — view source code</title>
+<rect class="box" x="840" y="560" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="980" y="595" text-anchor="middle">Prepare the environment;</text>
+<text class="node" x="980" y="618" text-anchor="middle">check the baseline</text>
+<text x="980" y="648" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="925" y="634" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/model_execution.py#L576" target="_blank"><title>Run the model Implement · test · review — view source code</title>
+<rect class="box" x="100" y="800" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="240" y="835" text-anchor="middle">Run the model</text>
+<text class="node" x="240" y="858" text-anchor="middle">Implement · test · review</text>
+<text x="240" y="888" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="185" y="874" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/git_workspace.py#L351" target="_blank"><title>Save changes in commits — view source code</title>
+<rect class="box" x="460" y="800" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="600" y="835" text-anchor="middle">Save changes</text>
+<text class="node" x="600" y="858" text-anchor="middle">in commits</text>
+<text x="600" y="888" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="545" y="874" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/completion.py#L143" target="_blank"><title>Run final checks; assess attempt outcome — view source code</title>
+<rect class="box" x="820" y="800" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="960" y="835" text-anchor="middle">Run final checks;</text>
+<text class="node" x="960" y="858" text-anchor="middle">assess attempt outcome</text>
+<text x="960" y="888" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="905" y="874" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L625-L626" target="_blank"><title>Branch needs to be pushed? — view source code</title>
+<path class="box" d="M1320 800 L1460 850 L1320 900 L1180 850 Z" fill="#fff4cc" stroke="#b77900" stroke-width="1.8"/>
+<text class="node" x="1320" y="830" text-anchor="middle">Branch needs</text>
+<text class="node" x="1320" y="853" text-anchor="middle">to be pushed?</text>
+<text x="1320" y="874" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="1265" y="860" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/publication.py#L115-L129" target="_blank"><title>Push the branch to GitHub Full or partial work — view source code</title>
+<rect class="box" x="100" y="1040" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="240" y="1075" text-anchor="middle">Push the branch to GitHub</text>
+<text class="node" x="240" y="1098" text-anchor="middle">Full or partial work</text>
+<text x="240" y="1128" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="185" y="1114" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/publication.py#L148" target="_blank"><title>Meets PR publication criteria? — view source code</title>
+<path class="box" d="M620 1040 L760 1090 L620 1140 L480 1090 Z" fill="#fff4cc" stroke="#b77900" stroke-width="1.8"/>
+<text class="node" x="620" y="1070" text-anchor="middle">Meets PR</text>
+<text class="node" x="620" y="1093" text-anchor="middle">publication criteria?</text>
+<text x="620" y="1114" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="565" y="1100" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/publication.py#L178" target="_blank"><title>Create or find the pull request — view source code</title>
+<rect class="box" x="840" y="1040" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="980" y="1075" text-anchor="middle">Create or find</text>
+<text class="node" x="980" y="1098" text-anchor="middle">the pull request</text>
+<text x="980" y="1128" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="925" y="1114" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/publication.py#L206" target="_blank"><title>Post the outcome comment complete · incomplete · handoff no_changes · infrastructure_error — view source code</title>
+<rect class="box" x="100" y="1300" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="240" y="1322" text-anchor="middle">Post the outcome comment</text>
+<text class="node" x="240" y="1345" text-anchor="middle" style="font-size:16px">complete · incomplete · handoff</text>
+<text class="node" x="240" y="1368" text-anchor="middle" style="font-size:16px">no_changes · infrastructure_error</text>
+<text x="240" y="1388" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="185" y="1374" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L3173" target="_blank"><title>Release the issue; clean up environment and state — view source code</title>
+<rect class="box" x="460" y="1300" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="600" y="1335" text-anchor="middle" style="font-size:18px">Release the issue;</text>
+<text class="node" x="600" y="1358" text-anchor="middle" style="font-size:18px">clean up environment and state</text>
+<text x="600" y="1388" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="545" y="1374" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L2539" target="_blank"><title>Fetch another issue? — view source code</title>
+<path class="box" d="M960 1300 L1100 1350 L960 1400 L820 1350 Z" fill="#fff4cc" stroke="#b77900" stroke-width="1.8"/>
+<text class="node" x="960" y="1330" text-anchor="middle">Fetch another</text>
+<text class="node" x="960" y="1353" text-anchor="middle">issue?</text>
+<text x="960" y="1374" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="905" y="1360" width="17" height="17"/></a>
+<a href="https://github.com/lbacik/simple-coding-agent/blob/v0.3.2/simple_coding_agent/lifecycle.py#L3559" target="_blank"><title>Stop or pause — view source code</title>
+<rect class="box" x="1180" y="1300" width="280" height="100" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+<text class="node" x="1320" y="1347" text-anchor="middle">Stop or pause</text>
+<text x="1320" y="1388" class="source" text-anchor="middle">GitHub ↗</text><use href="#github-icon" x="1265" y="1374" width="17" height="17"/></a>
+<text x="60" y="1522" class="meta">Blue groups: lifecycle phases   ·   Yellow diamonds: decisions   ·   Dashed red arrow: push failure</text></svg>

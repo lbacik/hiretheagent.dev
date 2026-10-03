@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1060" viewBox="0 0 1600 1060" role="img" aria-labelledby="title desc">
+<title id="title">Agent Forge — prepare, build and operate a project-specific coding agent</title>
+<desc id="desc">A developer uses create-agent with a coding assistant. Agent Forge analyzes the target repository and generates Dockerfile, Compose, repository profile and environment files. Docker Compose builds an image using simple-coding-agent, Agent SDK, Claude Code runtime and the project toolchain. Compose up creates a container. Its persistent data volume holds the target repository, state and logs. Compose stop stops the container, and exec provides access to agentctl.</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #0f172a; }
+  .title { font-size: 34px; font-weight: 700; fill: #0f172a; }
+  .heading { font-size: 23px; font-weight: 700; fill: #0f172a; }
+  .body { font-size: 18px; fill: #334155; }
+  .meta { font-size: 17px; fill: #64748b; }
+  .label { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; }
+  .command { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 18px; fill: #2563eb; font-weight: 600; }
+</style>
+
+<!-- Canvas Background -->
+<rect width="1600" height="1060" fill="#ffffff"/>
+
+<!-- Header -->
+<text x="60" y="64" class="title">Agent Forge</text>
+<text x="60" y="99" class="meta">Prepare, build and operate a project-specific coding agent</text>
+<path d="M60 130 H1540" stroke="#e2e8f0" stroke-width="1.5"/>
+
+<!-- 01 · PREPARE & BUILD -->
+<text x="60" y="170" class="label" fill="#2563eb">01 · PREPARE &amp; BUILD</text>
+
+<!-- Developer + coding assistant -->
+<rect x="60" y="206" width="350" height="130" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M76 206 H394" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+<text x="84" y="244" class="heading">Developer + coding assistant</text>
+<text x="84" y="282" class="body">Claude Code / Codex</text>
+<text x="84" y="311" class="body">Invoke create-agent</text>
+
+<!-- Target project -->
+<rect x="60" y="356" width="350" height="155" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M76 356 H394" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
+<text x="84" y="394" class="heading">Target project</text>
+<text x="84" y="432" class="body">Repository + stack + gating CI</text>
+<text x="84" y="461" class="body">Dependencies + required services</text>
+<text x="84" y="490" class="body">Source inspected during setup</text>
+
+<!-- Agent Forge · create-agent -->
+<rect x="466" y="206" width="440" height="305" rx="16" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+<path d="M482 206 H890" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+<text x="490" y="244" class="heading" fill="#1e40af">Agent Forge · create-agent</text>
+<text x="490" y="282" class="body">Analyze project requirements</text>
+<text x="490" y="311" class="body">Select toolchain + services</text>
+<text x="490" y="340" class="body">Define setup + validation commands</text>
+<text x="490" y="369" class="body">Generate instance configuration</text>
+<text x="490" y="398" class="body">Validate profile + Compose</text>
+
+<path d="M410 270 H466" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M410 429 H466" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Instance configuration -->
+<rect x="962" y="206" width="578" height="305" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M978 206 H1524" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
+<text x="986" y="244" class="heading">Instance configuration</text>
+<text x="986" y="282" class="body" style="font-family:ui-monospace,monospace;font-size:16.5px;fill:#2563eb">agent-instances/agent-&lt;name&gt;/</text>
+<text x="986" y="311" class="body">Dockerfile · compose.yaml</text>
+<text x="986" y="340" class="body">simple-coding-agent-profile.yml</text>
+<text x="986" y="369" class="body">.env.example · .env</text>
+<text x="986" y="398" class="body">Optional service entrypoint</text>
+
+<path d="M906 355 H962" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Build inputs -->
+<rect x="60" y="550" width="500" height="137" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M76 550 H544" stroke="#10b981" stroke-width="3.5" stroke-linecap="round"/>
+<text x="84" y="588" class="heading">Build inputs</text>
+<text x="84" y="626" class="body">simple-coding-agent + Agent SDK</text>
+<text x="84" y="655" class="body">Claude Code runtime + project toolchain</text>
+
+<!-- Docker image -->
+<rect x="622" y="550" width="434" height="137" rx="16" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5"/>
+<path d="M638 550 H1040" stroke="#059669" stroke-width="3.5" stroke-linecap="round"/>
+<text x="646" y="588" class="heading" fill="#065f46">Docker image</text>
+<text x="646" y="626" class="body">Agent → SDK → Claude Code runtime</text>
+<text x="646" y="655" class="body">Profile + toolchain + optional services</text>
+
+<path d="M560 620 H622" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1251 511 V530 H839 V550" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+<text x="1110" y="558" class="command">docker compose build</text>
+<text x="1110" y="588" class="meta">Fetch upstream agent + install runtime</text>
+<text x="1110" y="617" class="meta">SDK / runtime versions follow agent source</text>
+<text x="1110" y="646" class="meta">Project toolchain is installed in the image</text>
+
+<!-- 02 · RUN & CONTROL -->
+<path d="M60 721 H1540" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="60" y="762" class="label" fill="#059669">02 · RUN &amp; CONTROL</text>
+
+<!-- Operator · Docker Compose -->
+<rect x="60" y="799" width="500" height="192" rx="16" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+<path d="M76 799 H544" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+<text x="84" y="837" class="heading" fill="#1e40af">Operator · Docker Compose</text>
+<text x="84" y="876" class="command">up -d</text><text x="245" y="876" class="body">Create / start container</text>
+<text x="84" y="915" class="command">stop</text><text x="245" y="915" class="body">Stop container</text>
+<text x="84" y="954" class="command">exec agent</text><text x="245" y="954" class="body">Access agentctl</text>
+
+<!-- Running agent container -->
+<rect x="622" y="799" width="434" height="192" rx="16" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5"/>
+<path d="M638 799 H1040" stroke="#059669" stroke-width="3.5" stroke-linecap="round"/>
+<text x="646" y="837" class="heading" fill="#065f46">Running agent container</text>
+<text x="646" y="875" class="body">Agent works on the target project</text>
+<text x="646" y="904" class="body">Configuration loaded from .env</text>
+<text x="646" y="933" class="body">agentctl status / stop</text>
+
+<path d="M839 687 V799" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="974" y="780" class="meta" text-anchor="middle">docker compose up -d</text>
+
+<path d="M560 900 H622" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Persistent volume · /data -->
+<rect x="1118" y="799" width="422" height="192" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M1134 799 H1524" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/>
+<text x="1142" y="837" class="heading">Persistent volume · /data</text>
+<text x="1142" y="875" class="body">Target repository workspace</text>
+<text x="1142" y="904" class="body">Agent state + attempt logs</text>
+<text x="1142" y="933" class="body">Persists across container recreation</text>
+
+<path d="M1056 900 H1118" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Bottom Note -->
+<text x="60" y="1030" class="meta">One dedicated instance per project · target source lives in the data volume; the image supplies its execution environment.</text>
+</svg>

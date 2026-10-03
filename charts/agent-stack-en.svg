@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="650" viewBox="0 0 1440 650" role="img" aria-labelledby="title desc">
+<title id="title">Agent execution stack — simple-coding-agent v0.3.2</title>
+<desc id="desc">Dependency direction: the Python agent uses the Python Claude Agent SDK, which runs the JavaScript Claude Code runtime and its execution loop.</desc>
+<defs>
+  <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="1" r="1.2" fill="#e2e8f0"/>
+  </pattern>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #0f172a; }
+  .title { font-size: 32px; font-weight: 700; fill: #0f172a; }
+  .meta { font-size: 18px; fill: #64748b; }
+  .name { font-size: 30px; font-weight: 700; fill: #0f172a; }
+  .role { font-size: 17px; fill: #64748b; }
+  .language { font-size: 16px; font-weight: 700; }
+  .link { font-size: 17px; fill: #2563eb; font-weight: 600; }
+  a:hover .link { text-decoration: underline; }
+</style>
+
+<!-- Background -->
+<rect width="1440" height="650" fill="#ffffff"/>
+<rect y="140" width="1440" height="510" fill="url(#grid)"/>
+
+<!-- Header -->
+<text x="64" y="65" class="title">Agent execution stack</text>
+<text x="64" y="100" class="meta">simple-coding-agent v0.3.2</text>
+<a href="https://github.com/lbacik/simple-coding-agent" target="_blank">
+  <text x="1376" y="98" text-anchor="end" class="link">github.com/lbacik/simple-coding-agent ↗</text>
+</a>
+<path d="M64 132 H1376" stroke="#e2e8f0" stroke-width="1.5"/>
+
+<!-- Card 1: Agent (Python) -->
+<rect x="64" y="228" width="368" height="286" rx="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M88 228 H408" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+<circle cx="122" cy="286" r="28" fill="#eff6ff"/>
+<g fill="none" stroke="#2563eb" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="110" y="271" width="24" height="10" rx="3"/>
+  <path d="M122 281 V293 M104 293 H140 M104 293 V300 M140 293 V300"/>
+  <circle cx="104" cy="304" r="4"/>
+  <circle cx="140" cy="304" r="4"/>
+</g>
+<text x="384" y="292" text-anchor="end" class="language" fill="#2563eb">Python</text>
+<text x="96" y="360" class="name">Agent</text>
+<text x="96" y="397" class="role">Orchestration</text>
+<path d="M96 428 H400" stroke="#e2e8f0"/>
+<text x="96" y="468" class="meta" style="font-size:16px">Issues · attempts · publication</text>
+
+<!-- Card 2: Agent SDK (Python) -->
+<rect x="536" y="228" width="368" height="286" rx="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M560 228 H880" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round"/>
+<circle cx="594" cy="286" r="28" fill="#f5f3ff"/>
+<g fill="none" stroke="#7c3aed" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M586 274 L576 286 L586 298 M602 274 L612 286 L602 298 M597 272 L591 300"/>
+</g>
+<text x="856" y="292" text-anchor="end" class="language" fill="#7c3aed">Python</text>
+<text x="568" y="360" class="name">Agent SDK</text>
+<text x="568" y="397" class="role">Integration</text>
+<path d="M568 428 H872" stroke="#e2e8f0"/>
+<text x="568" y="468" class="meta" style="font-size:16px">Client · configuration · events</text>
+
+<!-- Card 3: Claude Code (JavaScript) -->
+<rect x="1008" y="228" width="368" height="286" rx="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M1032 228 H1352" stroke="#ea580c" stroke-width="3.5" stroke-linecap="round"/>
+<circle cx="1066" cy="286" r="28" fill="#fff7ed"/>
+<g fill="none" stroke="#ea580c" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M1081 283 A16 16 0 1 0 1077 298 M1081 273 V283 H1071"/>
+</g>
+<text x="1328" y="292" text-anchor="end" class="language" fill="#ea580c">JavaScript</text>
+<text x="1040" y="360" class="name">Claude Code</text>
+<text x="1040" y="397" class="role">Loop / Runtime</text>
+<path d="M1040 428 H1344" stroke="#e2e8f0"/>
+<text x="1040" y="468" class="meta" style="font-size:16px">Model ↔ tools ↔ results</text>
+
+<!-- Connectors -->
+<path d="M444 371 H522" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="484" y="348" text-anchor="middle" class="role" style="font-weight:600">uses</text>
+
+<path d="M916 371 H994" fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="956" y="348" text-anchor="middle" class="role" style="font-weight:600">runs</text>
+
+<!-- Bottom note -->
+<text x="720" y="582" text-anchor="middle" class="meta">Orchestrate the work → connect to the runtime → execute the loop</text>
+</svg>

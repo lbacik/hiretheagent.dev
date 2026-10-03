@@ -1,15 +1,19 @@
 import { WaitlistForm } from "./WaitlistForm";
+import { InteractiveWorkflow } from "./InteractiveWorkflow";
 
 export function Hero() {
   return (
-    <section className="max-w-6xl mx-auto px-6 pt-16 sm:pt-24 pb-16 sm:pb-24 text-center">
-      <div className="max-w-3xl mx-auto">
-        {/* Pre-headline Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-medium mb-8 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-          Autonomous agent for software engineers &amp; dev teams
-        </div>
+    <section className="max-w-6xl mx-auto px-6 pt-12 sm:pt-16 pb-16 sm:pb-24 text-center">
+      {/* Pre-headline Pill Badge */}
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-medium mb-6 shadow-sm">
+        <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+        Autonomous agent for software engineers &amp; dev teams
+      </div>
 
+      {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
+      <InteractiveWorkflow />
+
+      <div className="max-w-3xl mx-auto mt-10 sm:mt-14">
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-6xl font-extrabold font-display tracking-tight text-slate-950 leading-[1.12]">
           Hire an agent that{" "}
@@ -34,3 +38,4 @@ export function Hero() {
     </section>
   );
 }
+
