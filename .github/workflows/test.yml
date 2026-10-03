@@ -1,0 +1,53 @@
+# The gate. Runs on every branch push and PR, and is reused by release.yml so
+# the thing that blocks a deploy is the same thing that runs on every push.
+# `branches: ['**']` matches no tags, so a v* tag does not run this twice.
+#
+# Deliberately absent:
+#  - tests: the project has no test runner or test files yet.
+#  - services: nothing here touches a database or cache.
+#  - migrations: the project owns no schema.
+name: test
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Type check and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          # Same Node major as the production image (Dockerfile: node:24-alpine).
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+      - name: Lint
+        run: pnpm lint
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build

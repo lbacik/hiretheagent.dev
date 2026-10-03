@@ -1,0 +1,23 @@
+# Production stack, deployed by .github/workflows/deploy.yml.
+# Every ${VAR:?} below must be supplied by the deploy job; none is read from .env.
+services:
+  web:
+    image: ${APP_IMAGE:?set by the deploy job}
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: ${PUBLIC_HOST:?}
+      VIRTUAL_PORT: "3000"
+      LETSENCRYPT_HOST: ${PUBLIC_HOST:?}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks: [proxy]
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:?}
+    external: true

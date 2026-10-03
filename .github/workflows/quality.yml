@@ -1,0 +1,56 @@
+# Advisory checks. Nothing here can block a push, a PR or a release; that is why
+# this is a separate file from test.yml (reused by release.yml, where
+# github.event_name is still "push" for a tag, so an `if:` could not tell them apart).
+#
+# Two kinds of check live here, with different destinies:
+#  1. Waiting room - red means a defect in this repo; parked here until it
+#     reaches zero, then it graduates to test.yml and is deleted from here.
+#     (Currently empty: type check, lint and build already gate in test.yml.)
+#  2. Permanent watcher - goes red when someone else acts (a new advisory
+#     against an unchanged lockfile, a newer upstream version). Its red is news,
+#     not a defect, so it never graduates: gating on it would give a third party
+#     a veto over our releases.
+#
+# Both jobs below are watchers. The schedule only ever runs from the DEFAULT
+# branch's copy of this file.
+name: quality
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  schedule:
+    - cron: '17 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    # Neutral on push; allowed to fail on the schedule so a failure notifies.
+    continue-on-error: ${{ github.event_name != 'schedule' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm audit --prod
+
+  outdated:
+    name: Outdated dependencies
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ github.event_name != 'schedule' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # `pnpm outdated` exits 1 when anything is behind - that is the signal.
+      - run: pnpm outdated

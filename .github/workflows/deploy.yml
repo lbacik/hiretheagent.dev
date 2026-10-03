@@ -1,0 +1,104 @@
+# Deploys a tag's image to the Docker host behind the `rum` context. Called by
+# release.yml, and runnable by hand to redeploy or roll back to any tag that
+# already has an image in the registry.
+#
+# The project owns no schema, so there is no migration step.
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing image tag to deploy (e.g. v1.2.3)
+        type: string
+        required: true
+
+# Never kill a deploy halfway through a converge.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ vars.PUBLIC_HOST }}
+    env:
+      DOCKER_HOST: ssh://rum
+      # --env-file /dev/null is load-bearing: without it compose reads the
+      # committed .env and ${VAR:?} guards resolve to dev values, not failures.
+      COMPOSE: docker compose --env-file /dev/null -p hiretheagent -f compose.prod.yaml
+      APP_IMAGE: ghcr.io/lbacik/hiretheagent.dev:${{ inputs.tag }}
+      # Variables
+      PUBLIC_HOST: ${{ vars.PUBLIC_HOST }}
+      LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL }}
+      PROXY_NETWORK: ${{ vars.PROXY_NETWORK }}
+      # Secrets
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+    steps:
+      # The compose file deployed must be the one from the tag, not HEAD.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Pre-flight
+        run: |
+          missing=""
+          for v in PUBLIC_HOST LETSENCRYPT_EMAIL PROXY_NETWORK DEPLOY_SSH_KEY DEPLOY_SSH_KNOWN_HOSTS REGISTRY_USER REGISTRY_PASSWORD; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::unset in the production environment:$missing"
+            exit 1
+          fi
+
+      - name: Configure SSH access to rum
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/github-actions-deploy
+          chmod 600 ~/.ssh/github-actions-deploy
+          printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+          cat >> ~/.ssh/config <<'EOF2'
+          Host rum
+            HostName rum.host.luka.sh
+            Port 2211
+            User debian
+            IdentityFile ~/.ssh/github-actions-deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF2
+
+      # The CLI forwards this auth with the pull, so credentials never land on the host.
+      - name: Log in to ghcr.io
+        run: printf '%s' "$REGISTRY_PASSWORD" | docker login ghcr.io -u "$REGISTRY_USER" --password-stdin
+
+      - name: Deploy
+        run: $COMPOSE up -d --pull always --wait --wait-timeout 180
+
+      # Through the proxy and TLS, not just the container healthcheck. The body
+      # assertion rejects a proxy error page answering 200.
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 12); do
+            body=$(curl -fsS --max-time 10 "https://${PUBLIC_HOST}/" || true)
+            if printf '%s' "$body" | grep -q 'hiretheagent.dev'; then
+              echo "OK after $i attempt(s)"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::smoke test failed: https://${PUBLIC_HOST}/ did not serve the app"
+          $COMPOSE logs --tail 100 web
+          exit 1
