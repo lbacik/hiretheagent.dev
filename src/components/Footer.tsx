@@ -24,11 +24,11 @@ export function Footer() {
         {/* Contact Email */}
         <div className="flex flex-wrap items-center justify-center text-slate-600">
           <a
-            href="mailto:contact@hiretheagent.dev"
+            href="mailto:contact@lukaszbacik.com"
             className="inline-flex items-center gap-1.5 hover:text-blue-600 transition-colors"
           >
             <Mail className="w-3.5 h-3.5" />
-            <span>contact@hiretheagent.dev</span>
+            <span>contact@lukaszbacik.com</span>
           </a>
         </div>
 
