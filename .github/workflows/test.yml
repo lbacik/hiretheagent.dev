@@ -1,6 +1,8 @@
-# The gate. Runs on every branch push and PR, and is reused by release.yml so
-# the thing that blocks a deploy is the same thing that runs on every push.
-# `branches: ['**']` matches no tags, so a v* tag does not run this twice.
+# The gate. Runs on pushes to main and on every PR, and is reused by
+# release.yml so the thing that blocks a deploy is the same thing that runs on
+# every PR. Push is limited to main because a PR branch already runs through
+# `pull_request`; `['**']` ran every job twice. `[main]` matches no tags, so a
+# v* tag does not run this twice either.
 #
 # Deliberately absent:
 #  - tests: the project has no test runner or test files yet.
@@ -10,7 +12,7 @@ name: test
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   workflow_call:
 

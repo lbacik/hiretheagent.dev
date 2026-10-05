@@ -12,12 +12,13 @@
 #     a veto over our releases.
 #
 # Both jobs below are watchers. The schedule only ever runs from the DEFAULT
-# branch's copy of this file.
+# branch's copy of this file. Push is limited to main, as in test.yml, so a PR
+# branch runs each job once (via `pull_request`), not twice.
 name: quality
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   schedule:
     - cron: '17 6 * * 1'
