@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Space_Grotesk, Fira_Code } from "next/font/google";
+import Script from "next/script";
+import { analytics } from "@/config/analytics";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -54,6 +56,12 @@ export default function RootLayout({
     >
       <body className="bg-blueprint min-h-screen text-slate-800 antialiased selection:bg-blue-600 selection:text-white flex flex-col font-sans">
         {children}
+        <Script
+          src={analytics.scriptUrl}
+          data-website-id={analytics.websiteId}
+          data-domains={analytics.domains}
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

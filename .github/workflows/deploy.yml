@@ -93,7 +93,8 @@ jobs:
         run: |
           for i in $(seq 1 12); do
             body=$(curl -fsS --max-time 10 "https://${PUBLIC_HOST}/" || true)
-            if printf '%s' "$body" | grep -q 'hiretheagent.dev'; then
+            if printf '%s' "$body" | grep -q 'hiretheagent.dev' \
+               && printf '%s' "$body" | grep -q 'umami.rum.luka.sh/script.js'; then
               echo "OK after $i attempt(s)"
               exit 0
             fi
