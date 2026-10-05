@@ -9,6 +9,9 @@ services:
       VIRTUAL_PORT: "3000"
       LETSENCRYPT_HOST: ${PUBLIC_HOST:?}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?}
+      # Optional: with either one empty, the page renders no Umami tracker.
+      UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-}
+      UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
       interval: 10s

@@ -12,12 +12,13 @@
 #     a veto over our releases.
 #
 # Both jobs below are watchers. The schedule only ever runs from the DEFAULT
-# branch's copy of this file.
+# branch's copy of this file. Push is limited to main, as in test.yml, so a PR
+# branch runs each job once (via `pull_request`), not twice.
 name: quality
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   schedule:
     - cron: '17 6 * * 1'
@@ -34,10 +35,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
+      # No `cache: pnpm`: audit reads only the lockfile and never fills the
+      # store, so on a cache miss the post-job save fails on a missing path.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
-          cache: pnpm
       - run: pnpm audit --prod
 
   outdated:
