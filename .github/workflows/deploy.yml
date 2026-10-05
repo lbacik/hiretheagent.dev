@@ -42,6 +42,9 @@ jobs:
       PUBLIC_HOST: ${{ vars.PUBLIC_HOST }}
       LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL }}
       PROXY_NETWORK: ${{ vars.PROXY_NETWORK }}
+      # Optional; leave unset to deploy without the Umami tracker.
+      UMAMI_SCRIPT_URL: ${{ vars.UMAMI_SCRIPT_URL }}
+      UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
       # Secrets
       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
       DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
@@ -88,13 +91,15 @@ jobs:
         run: $COMPOSE up -d --pull always --wait --wait-timeout 180
 
       # Through the proxy and TLS, not just the container healthcheck. The body
-      # assertion rejects a proxy error page answering 200.
+      # assertion rejects a proxy error page answering 200. When Umami is
+      # configured, the tracker's website ID must be in the served HTML too.
       - name: Smoke test
         run: |
           for i in $(seq 1 12); do
             body=$(curl -fsS --max-time 10 "https://${PUBLIC_HOST}/" || true)
             if printf '%s' "$body" | grep -q 'hiretheagent.dev' \
-               && printf '%s' "$body" | grep -q 'umami.rum.luka.sh/script.js'; then
+               && { [ -z "$UMAMI_SCRIPT_URL" ] || [ -z "$UMAMI_WEBSITE_ID" ] \
+                    || printf '%s' "$body" | grep -qF "data-website-id=\"${UMAMI_WEBSITE_ID}\""; }; then
               echo "OK after $i attempt(s)"
               exit 0
             fi
