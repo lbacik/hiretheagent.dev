@@ -9,8 +9,12 @@ The unattended coding agent this page presents, developed in its own repository 
 _Avoid_: Agent Sid, the agent engine
 
 **Release**:
-A published version of simple-coding-agent, identified by its `v*` tag and carrying release notes. The page treats the agent repository's Releases as the only source of version information.
+A published version of simple-coding-agent, identified by its `v*` tag and carrying release notes. The page treats the agent repository's Releases as the only source of version information. Only stable versions count: drafts and prereleases are not Releases.
 _Avoid_: Tag, build, deploy
+
+**Current Release**:
+The Release whose tag is the highest by semver; the version the page presents as simple-coding-agent's current one.
+_Avoid_: Latest release, newest release
 
 **Change log**:
 The list of Releases with their notes, as shown on this page.
