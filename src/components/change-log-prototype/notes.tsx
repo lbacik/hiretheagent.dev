@@ -17,6 +17,7 @@ export type Release = GitHubRelease & {
   categories: Category[];
   compareUrl?: string;
   newContributors: string[];
+  recognized: boolean;
   changeCount: number;
 };
 
@@ -28,13 +29,17 @@ const bySemverDesc = (a: GitHubRelease, b: GitHubRelease) => {
 };
 
 // Parses: "### <Category>" headings, "* <title> by @<login> in <pr url>" lines,
-// "## New Contributors" lines and the "**Full Changelog**: <url>" line. Anything else is dropped.
+// "## New Contributors" lines and the "**Full Changelog**: <url>" line. Any other non-empty line
+// means the body is not in the generated shape: `recognized` is false and the body is shown as
+// plain text instead (decided in issue #10).
 export function parseNotes(body: string) {
   const categories: Category[] = [];
   const newContributors: string[] = [];
   let compareUrl: string | undefined;
+  let recognized = true;
   let section: "changes" | "contributors" | null = null;
   for (const line of body.split("\n")) {
+    if (line.trim() === "") continue;
     if (line.startsWith("## What's Changed")) section = "changes";
     else if (line.startsWith("## New Contributors")) section = "contributors";
     else if (line.startsWith("### ") && section === "changes") categories.push({ title: line.slice(4), entries: [] });
@@ -42,10 +47,11 @@ export function parseNotes(body: string) {
     else if (line.startsWith("* ") && section === "contributors") newContributors.push(line.slice(2));
     else if (line.startsWith("* ") && section === "changes") {
       const m = line.match(/^\* (.+) by @\S+ in (\S+\/pull\/(\d+))$/);
-      if (m) categories.at(-1)?.entries.push({ title: m[1], url: m[2], pr: Number(m[3]) });
-    }
+      if (m && categories.length) categories.at(-1)!.entries.push({ title: m[1], url: m[2], pr: Number(m[3]) });
+      else recognized = false;
+    } else recognized = false;
   }
-  return { categories, newContributors, compareUrl };
+  return { categories, newContributors, compareUrl, recognized };
 }
 
 export const releases: Release[] = releasesPayload

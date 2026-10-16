@@ -3,6 +3,7 @@
 // GitHub generated notes under the release.yml categories from issue #8. Categorization of these
 // historical PRs is a guess from their titles (backfill is issue #11). All published_at values are
 // identical, as a one-off backfill would make them. One prerelease is included to prove the filter.
+// v0.3.3's body is hand-edited on purpose, to show the plain-text fallback; v0.2.2 has no changes.
 
 export type GitHubRelease = {
   tag_name: string; name: string; html_url: string; draft: boolean; prerelease: boolean;
@@ -98,7 +99,7 @@ export const releasesPayload: GitHubRelease[] = [
     "prerelease": false,
     "created_at": "2026-10-11T10:29:45Z",
     "published_at": "2026-10-17T09:12:44Z",
-    "body": "## What's Changed\n### Other changes\n* Route Meta traffic through the LiteLLM gateway (#171) by @lbacik in https://github.com/lbacik/simple-coding-agent/pull/173\n\n**Full Changelog**: https://github.com/lbacik/simple-coding-agent/compare/v0.3.2...v0.3.3"
+    "body": "Hand-edited notes (not the generated shape):\n\n- Meta traffic now goes through the **LiteLLM gateway**.\n- See [the setup guide](https://github.com/lbacik/simple-coding-agent#setup) for the new env vars."
   },
   {
     "tag_name": "v0.3.2",
