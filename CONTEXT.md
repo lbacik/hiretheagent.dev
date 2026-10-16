@@ -15,3 +15,7 @@ _Avoid_: Tag, build, deploy
 **Change log**:
 The list of Releases with their notes, as shown on this page.
 _Avoid_: Release history, news
+
+**Change**:
+One entry in a Release's notes, corresponding to one merged pull request and categorized as a feature, a fix or another change. The Change log lists Changes, grouped under the Release that shipped them.
+_Avoid_: Commit, update, item
