@@ -5,7 +5,6 @@
 # v* tag does not run this twice either.
 #
 # Deliberately absent:
-#  - tests: the project has no test runner or test files yet.
 #  - services: nothing here touches a database or cache.
 #  - migrations: the project owns no schema.
 name: test
@@ -40,6 +39,8 @@ jobs:
         run: pnpm exec tsc --noEmit
       - name: Lint
         run: pnpm lint
+      - name: Tests
+        run: pnpm test
 
   build:
     name: Production build
