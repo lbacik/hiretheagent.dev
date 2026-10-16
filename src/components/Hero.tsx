@@ -3,6 +3,7 @@ import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
+import { ChangeLogPlaceholder } from "./version-bar-prototype/VersionBarPrototype";
 
 export function Hero() {
   return (
@@ -51,6 +52,9 @@ export function Hero() {
 
       {/* Mailing & Waitlist Form */}
       <WaitlistForm />
+
+      {/* PROTOTYPE (issue #9): anchor target for the bar links */}
+      <ChangeLogPlaceholder />
 
       {/* Active Projects Panel */}
       <ActiveProjects />
