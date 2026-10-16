@@ -40,7 +40,8 @@ export function parseReleaseNotes(body: string | null): ReleaseNotes {
   let recognized = true;
   let section: "changes" | "contributors" | null = null;
 
-  for (const line of body.split("\n")) {
+  // Bodies edited in GitHub's web UI come back with CRLF line endings.
+  for (const line of body.split(/\r?\n/)) {
     if (line.trim() === "") continue;
     if (line.startsWith("## What's Changed")) section = "changes";
     else if (line.startsWith("## New Contributors")) section = "contributors";
