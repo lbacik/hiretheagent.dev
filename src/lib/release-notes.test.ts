@@ -83,6 +83,11 @@ describe("parseReleaseNotes", () => {
     expect(notes.kind).toBe("parsed");
   });
 
+  it("parses a body with CRLF line endings like one with LF", () => {
+    const crlf = GENERATED.replace(/\n/g, "\r\n");
+    expect(parseReleaseNotes(crlf)).toEqual(parseReleaseNotes(GENERATED));
+  });
+
   it("falls back to plain text when a line falls outside the shape", () => {
     const body = "## What's Changed\n### Features\n* Add dark mode by @alice in https://github.com/lbacik/simple-coding-agent/pull/12\nSee the setup guide for the new env vars.";
     expect(parseReleaseNotes(body)).toEqual({ kind: "fallback", text: body });
