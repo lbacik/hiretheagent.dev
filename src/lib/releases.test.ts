@@ -122,7 +122,11 @@ describe("getStableReleases failure paths", () => {
 
 describe("getCurrentRelease", () => {
   it("is the release with the highest semver tag", () => {
-    const releases = [release({ tagName: "v0.10.0" }), release({ tagName: "v0.9.0" })];
+    const releases = [
+      release({ tagName: "v0.9.0" }),
+      release({ tagName: "v0.2.0" }),
+      release({ tagName: "v0.10.0" }),
+    ];
     expect(getCurrentRelease(releases)).toMatchObject({ tagName: "v0.10.0" });
   });
 

@@ -79,10 +79,11 @@ export async function getStableReleases(): Promise<StableRelease[]> {
 }
 
 // The Current Release: the Release with the highest semver tag, or none.
+// Sorts a copy, so callers may pass Releases in any order.
 export function getCurrentRelease(
   releases: StableRelease[],
 ): StableRelease | undefined {
-  return releases[0];
+  return [...releases].sort(bySemverDesc)[0];
 }
 
 // `created_at` (the tag commit's date), formatted like "14 Oct 2026".
