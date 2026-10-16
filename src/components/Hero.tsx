@@ -2,6 +2,7 @@ import { Check, Sparkles } from "lucide-react";
 import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ActiveProjects } from "./ActiveProjects";
+import { QuickStart } from "./QuickStart";
 
 export function Hero() {
   return (
@@ -44,6 +45,9 @@ export function Hero() {
 
       {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
       <InteractiveWorkflow />
+
+      {/* Quick Start Guide */}
+      <QuickStart />
 
       {/* Mailing & Waitlist Form */}
       <WaitlistForm />
