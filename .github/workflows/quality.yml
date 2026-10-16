@@ -55,4 +55,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # `pnpm outdated` exits 1 when anything is behind - that is the signal.
-      - run: pnpm outdated
+      # typescript is excluded: typescript-eslint does not support TS 7 yet, so we stay on 6.x.
+      # Remove the exclusion once it does.
+      - run: pnpm outdated '!typescript'
