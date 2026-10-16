@@ -3,6 +3,8 @@ import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
+import { Suspense } from "react";
+import { ChangeLogPrototype } from "./change-log-prototype/ChangeLogPrototype";
 
 export function Hero() {
   return (
@@ -51,6 +53,11 @@ export function Hero() {
 
       {/* Mailing & Waitlist Form */}
       <WaitlistForm />
+
+      {/* PROTOTYPE (issue #10): Change log section variants */}
+      <Suspense>
+        <ChangeLogPrototype />
+      </Suspense>
 
       {/* Active Projects Panel */}
       <ActiveProjects />
