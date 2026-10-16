@@ -7,10 +7,10 @@ const AGENT_FORGE_URL = "https://github.com/lbacik/agent-forge";
 const AGENTCTL_PREFIX =
   "docker compose exec --user agent agent /usr/local/bin/agentctl";
 
-function CopyButton({ text, dark }: { text: string; dark: boolean }) {
+function useCopy() {
   const [copied, setCopied] = useState(false);
 
-  const copy = async () => {
+  const copy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -26,10 +26,16 @@ function CopyButton({ text, dark }: { text: string; dark: boolean }) {
     setTimeout(() => setCopied(false), 1500);
   };
 
+  return { copied, copy };
+}
+
+function CopyButton({ text, dark }: { text: string; dark: boolean }) {
+  const { copied, copy } = useCopy();
+
   return (
     <button
       type="button"
-      onClick={copy}
+      onClick={() => copy(text)}
       aria-label={copied ? "Copied to clipboard" : "Copy to clipboard"}
       className={`absolute top-2 right-2 p-1.5 rounded-md border transition-colors ${
         dark
@@ -107,17 +113,7 @@ function CommandTable({ rows }: { rows: CommandRow[] }) {
 }
 
 function PrefixLine({ prefix }: { prefix: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(prefix);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* clipboard unavailable */
-    }
-  };
+  const { copied, copy } = useCopy();
 
   return (
     <div className="flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5">
@@ -127,7 +123,7 @@ function PrefixLine({ prefix }: { prefix: string }) {
       </code>
       <button
         type="button"
-        onClick={copy}
+        onClick={() => copy(prefix)}
         aria-label={copied ? "Copied to clipboard" : "Copy prefix to clipboard"}
         className="p-1 rounded-md text-slate-400 hover:text-blue-600 hover:bg-white border border-transparent hover:border-slate-200 transition-colors shrink-0"
       >
