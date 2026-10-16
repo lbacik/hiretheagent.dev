@@ -20,6 +20,12 @@ export function Header() {
         {/* Navigation & Actions */}
         <div className="flex items-center gap-4 text-xs font-mono">
           <a
+            href="#quick-start"
+            className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
+          >
+            <span>Quick start</span>
+          </a>
+          <a
             href="#workflow"
             className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
           >
