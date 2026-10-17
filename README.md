@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Adding an Article
+
+An Article is a Medium post by the page's author that is directly about
+simple-coding-agent or this page. To add one:
+
+1. Append to the list in `src/lib/articles.ts`, using the canonical Medium
+   URL without the `?source=…` query.
+2. Cut a Release.

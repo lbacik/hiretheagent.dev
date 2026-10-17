@@ -1,14 +1,16 @@
-// Captures the sticky version bar (closed bar and open "What's new" panel)
-// and the Change log section (default view, Features and Fixes filters, and
-// the list after "Load more") at desktop (1280 px) and mobile (390 px) widths.
+// Captures the sticky version bar (closed bar and open "What's new" panel),
+// the Articles row (hero, Articles pills, top of the workflow panel) and the
+// Change log section (default view, Features and Fixes filters, and the list
+// after "Load more") at desktop (1280 px) and mobile (390 px) widths.
 //
 // Targets a running server: `pnpm dev` first, then
 // `pnpm screenshots [url]` (default http://localhost:3000).
 // Writes PNGs to ./screenshots/ (git-ignored). The maintainer runs this
 // during review against the real API and attaches the images to the PR.
 //
-// Without real Releases nothing renders; the script then logs a
-// skip instead of failing.
+// Without real Releases the bar and change log render nothing; without
+// Articles that section renders nothing; the script then logs a skip
+// instead of failing.
 
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -54,6 +56,35 @@ async function captureVersionBar(page, viewport) {
     path: path.join(OUT_DIR, `version-bar-open-${viewport.name}.png`),
   });
   console.log(`[${viewport.name}] captured version bar closed + open.`);
+}
+
+// Centres #articles so the shot includes the hero above and the top of the
+// workflow panel below.
+async function captureArticles(page, viewport) {
+  await page.goto(BASE_URL, { waitUntil: "networkidle0" });
+
+  const articles = await page.$("#articles");
+  if (!articles) {
+    console.log(
+      `[${viewport.name}] articles section not rendered (empty list); skipping.`,
+    );
+    return;
+  }
+
+  await page.$eval("#articles", (el) =>
+    el.scrollIntoView({ block: "center", inline: "nearest" }),
+  );
+  await settle();
+  const overflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  );
+  console.log(`[${viewport.name}] horizontal overflow: ${overflow}px.`);
+  await page.screenshot({
+    path: path.join(OUT_DIR, `articles-${viewport.name}.png`),
+  });
+  console.log(`[${viewport.name}] captured articles.`);
 }
 
 async function captureChangeLog(page, viewport) {
@@ -123,6 +154,7 @@ try {
       deviceScaleFactor: 1,
     });
     await captureVersionBar(page, viewport);
+    await captureArticles(page, viewport);
     await captureChangeLog(page, viewport);
     await page.close();
   }
