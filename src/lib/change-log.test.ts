@@ -100,13 +100,13 @@ describe("buildChangeLogRows", () => {
 
   it("yields a plain-text fallback row for a hand-edited body", () => {
     const body = "Hand-edited notes:\n\n- Meta traffic now goes through the gateway.";
-    const rows = buildChangeLogRows([release({ tagName: "v0.3.3", body })]);
+    const rows = buildChangeLogRows([release({ tagName: "v0.3.3", name: "v0.3.3", body })]);
     expect(rows).toEqual([
       {
         kind: "fallback",
         key: "v0.3.3",
         releaseTag: "v0.3.3",
-        releaseName: "v0.2.0",
+        releaseName: "v0.3.3",
         releaseUrl: "https://github.com/lbacik/simple-coding-agent/releases/tag/v0.2.0",
         releaseCreatedAt: "2026-10-14T15:25:17Z",
         text: body,
@@ -115,7 +115,7 @@ describe("buildChangeLogRows", () => {
   });
 
   it("yields a maintenance row for a release with no changes", () => {
-    const rows = buildChangeLogRows([release({ tagName: "v0.2.2", body: null })]);
+    const rows = buildChangeLogRows([release({ tagName: "v0.2.2", name: "v0.2.2", body: null })]);
     expect(rows).toEqual([
       {
         kind: "maintenance",
