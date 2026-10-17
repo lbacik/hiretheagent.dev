@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowDown, ArrowUpRight, ChevronDown } from "lucide-react";
 
 import type { ReleaseNotes } from "@/lib/release-notes";
+import { ChangeTitle } from "./ChangeTitle";
 
 export type VersionBarRelease = {
   name: string;
@@ -42,7 +43,7 @@ function ReleaseNotesView({ notes }: { notes: ReleaseNotes }) {
                   –
                 </span>
                 <span>
-                  {change.title}{" "}
+                  <ChangeTitle title={change.title} />{" "}
                   <a
                     href={change.prUrl}
                     target="_blank"
