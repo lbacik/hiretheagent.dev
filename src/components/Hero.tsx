@@ -1,6 +1,7 @@
 import { Check, Sparkles } from "lucide-react";
 import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
+import { ChangeLog } from "./ChangeLog";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
 
@@ -51,6 +52,9 @@ export function Hero() {
 
       {/* Mailing & Waitlist Form */}
       <WaitlistForm />
+
+      {/* Change log */}
+      <ChangeLog />
 
       {/* Active Projects Panel */}
       <ActiveProjects />
