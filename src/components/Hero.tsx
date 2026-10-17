@@ -48,6 +48,9 @@ export function Hero() {
       {/* Articles row */}
       <Articles />
 
+      {/* Separator between the hero and the workflow panel */}
+      <div aria-hidden="true" className="my-10 sm:my-14 mx-auto w-full max-w-xs h-px bg-slate-300" />
+
       {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
       <InteractiveWorkflow />
 

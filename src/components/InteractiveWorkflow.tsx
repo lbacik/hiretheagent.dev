@@ -194,7 +194,7 @@ export function InteractiveWorkflow() {
   const scrollToWorkflow = () => {
     const target = workflowContainerRef.current || stagesSectionRef.current;
     if (target) {
-      const headerOffset = 76; // header height + margin
+      const headerOffset = 124; // sticky header + version bar + margin
       const elementPosition = target.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -265,613 +265,605 @@ export function InteractiveWorkflow() {
     <div
       ref={workflowContainerRef}
       id="workflow"
-      className={`w-full mx-auto mt-6 sm:mt-8 mb-0 scroll-mt-20 transition-all duration-300 ease-in-out text-left ${
+      className={`w-full mx-auto scroll-mt-32 transition-all duration-300 ease-in-out text-left ${
         isExpandedWidth ? "max-w-5xl lg:max-w-6xl" : "max-w-xl sm:max-w-2xl"
       }`}
     >
-      {/* Top Header / Mode Switcher Toolbar */}
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
-            <Layers className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-display font-bold text-slate-900 text-xs sm:text-sm">
-                Delivery Workflow
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 uppercase font-semibold">
-                {viewMode === "interactive"
-                  ? "Interactive Mode (1.0x)"
-                  : diagramScale === "1x"
-                  ? "Architecture Diagram (1.0x)"
-                  : "Architecture Diagram (0.5x)"}
-              </span>
+      {/* Frame: toolbar and content panel share one tinted surface */}
+      <div className="rounded-3xl bg-blue-100/70 ring-1 ring-blue-200 shadow-soft p-2 sm:p-2.5">
+        {/* Top Header / Mode Switcher Toolbar */}
+        <div className="px-2.5 py-2 sm:px-3 sm:py-2.5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-white border border-blue-200 flex items-center justify-center text-blue-600">
+              <Layers className="w-4 h-4" />
             </div>
-            <p className="text-[11px] font-mono text-slate-500 hidden sm:block">
-              {viewMode === "interactive"
-                ? "Click stages to inspect details or simulate the autonomous feedback loop."
-                : "From idea to merged change · Human-led planning, agent execution, human approval."}
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-slate-900 text-xs sm:text-sm">
+                  Delivery Workflow
+                </span>
+                <span className="hidden sm:inline text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 text-slate-600 border border-slate-300/70 uppercase font-semibold">
+                  {viewMode === "interactive"
+                    ? "Interactive Mode (1.0x)"
+                    : diagramScale === "1x"
+                    ? "Architecture Diagram (1.0x)"
+                    : "Architecture Diagram (0.5x)"}
+                </span>
+              </div>
+              <p className="text-[11px] font-mono text-slate-600 hidden sm:block">
+                {viewMode === "interactive"
+                  ? "Click stages to inspect details or simulate the autonomous feedback loop."
+                  : "From idea to merged change · Human-led planning, agent execution, human approval."}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2 text-xs font-mono ml-auto">
-          {viewMode === "interactive" ? (
-            <>
-              <button
-                type="button"
-                onClick={handleToggleSimulation}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
-                  isPlaying
-                    ? "bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 ring-2 ring-amber-400/20"
-                    : "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent shadow-emerald-600/20 shadow-md"
-                }`}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="w-3.5 h-3.5 fill-current" />
-                    <span>Pause</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Simulate</span>
-                  </>
-                )}
-              </button>
-
-              {!isSimulationHUDOpen && (
+          {/* Action Controls */}
+          <div className="flex items-center gap-2 text-xs font-mono ml-auto">
+            {viewMode === "interactive" ? (
+              <>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsSimulationHUDOpen(true);
-                    scrollToWorkflow();
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold transition-colors cursor-pointer text-xs font-mono"
-                  title="Otwórz panel lektora i animacji (Simulation Player)"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="hidden sm:inline">Voice &amp; HUD</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => {
-                  setViewMode("blueprint");
-                  setIsPlaying(false);
-                  setIsSimulationHUDOpen(false);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold transition-colors cursor-pointer"
-                title="Collapse to compact diagram (0.5x size)"
-              >
-                <Minimize2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Compact Diagram</span>
-                <span className="sm:hidden">0.5x</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={handleStartSimulation}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono text-xs font-bold transition-all shadow-md hover:shadow-emerald-600/20 active:scale-95 cursor-pointer"
-                title="Start pipeline simulation with voice narration & animations"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Simulate</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setViewMode("interactive");
-                  setTimeout(() => scrollToWorkflow(), 60);
-                }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm hover:shadow hover:shadow-blue-600/20 active:scale-95 cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Interactive Mode</span>
-                <ChevronRight className="w-3 h-3 ml-0.5 opacity-80" />
-              </button>
-
-              {/* x1 Button to enlarge the diagram itself */}
-              <button
-                type="button"
-                onClick={() => setDiagramScale((prev) => (prev === "0.5x" ? "1x" : "0.5x"))}
-                className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
-                  diagramScale === "1x"
-                    ? "bg-slate-900 text-white border-slate-900 hover:bg-slate-800"
-                    : "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 hover:border-slate-400"
-                }`}
-                title={diagramScale === "1x" ? "Scale down diagram (0.5x)" : "Enlarge diagram (1x)"}
-              >
-                {diagramScale === "1x" ? (
-                  <>
-                    <Minimize2 className="w-3.5 h-3.5 text-slate-300" />
-                    <span>x0.5</span>
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
-                    <span>x1</span>
-                  </>
-                )}
-              </button>
-            </>
-          )}
-
-          <a
-            href="/charts/workflow-en.svg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors hidden sm:inline-flex"
-            title="Open raw vector SVG in new tab"
-          >
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        </div>
-      </div>
-
-      {/* Main Panel Content */}
-      {viewMode === "blueprint" ? (
-        /* =========================================================================
-           ARCHITECTURE DIAGRAM (COMPACT 0.5X OR EXPANDED 1.0X)
-           ========================================================================= */
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-soft p-3 sm:p-5 overflow-hidden animate-in fade-in duration-200">
-          {/* Diagram Container */}
-          <div className="relative rounded-xl border border-slate-200/80 overflow-hidden bg-[#f6f8fb] shadow-inner p-2">
-            <Image
-              src="/charts/workflow-en.svg"
-              alt="Workflow — from idea to merged change"
-              width={1680}
-              height={850}
-              className="w-full h-auto rounded-lg shadow-sm"
-              priority
-            />
-          </div>
-
-          {/* Quick Caption Strip */}
-          <div className="mt-3 px-1 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] font-mono text-slate-500 gap-1.5">
-            <span>
-              Dashed line: feedback path (<code className="text-amber-700 bg-amber-50 px-1 py-0.5 rounded">Requested changes → rework</code>).
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setViewMode("interactive");
-                setTimeout(() => scrollToWorkflow(), 60);
-              }}
-              className="text-blue-600 hover:text-blue-700 font-semibold underline underline-offset-2 text-left sm:text-right cursor-pointer"
-            >
-              Explore 4 stages interactively →
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* =========================================================================
-           EXPANDED INTERACTIVE PIPELINE (ORIGINAL FULL SIZE)
-           ========================================================================= */
-        <div
-          ref={stagesSectionRef}
-          className="space-y-6 animate-in fade-in zoom-in-[0.99] duration-300 scroll-mt-24"
-        >
-          {/* 4-Stage Stepper Ribbon */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
-            {STEPS.map((step, idx) => {
-              const isSelected = activeStep === idx;
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveStep(idx);
-                    setIsPlaying(false);
-                  }}
-                  className={`text-left p-4 rounded-2xl border transition-all duration-200 relative group cursor-pointer ${
-                    isSelected
-                      ? `bg-white ${step.accentColor.activeBorder} shadow-md ring-2 ${step.accentColor.activeRing}`
-                      : `bg-white/80 border-slate-200 hover:border-slate-300 hover:bg-white`
+                  onClick={handleToggleSimulation}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
+                    isPlaying
+                      ? "bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 ring-2 ring-amber-400/20"
+                      : "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent shadow-emerald-600/20 shadow-md"
                   }`}
-                  aria-selected={isSelected}
-                  role="tab"
                 >
-                  {/* Step Top Bar */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${
-                        isSelected
-                          ? `${step.accentColor.badgeBg} ${step.accentColor.badgeText}`
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {step.stepNumber}
-                    </span>
-                    <span className="text-[10px] font-mono font-medium text-slate-400 uppercase tracking-wider">
-                      {step.categoryLabel}
-                    </span>
-                  </div>
-
-                  {/* Title & Owner */}
-                  <h3 className="font-display font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors">
-                    {step.name}
-                  </h3>
-                  <div className="text-xs text-slate-600 font-mono mt-1 truncate">
-                    {step.owner}
-                  </div>
-
-                  {/* Deliverable snippet */}
-                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-slate-400 uppercase text-[9px] tracking-wider font-semibold">
-                      {step.deliverableType}
-                    </span>
-                    <span
-                      className={`font-semibold truncate max-w-[130px] ${
-                        isSelected ? step.accentColor.badgeText : "text-slate-700"
-                      }`}
-                      title={step.deliverable}
-                    >
-                      {step.deliverable}
-                    </span>
-                  </div>
-
-                  {/* Active Step Indicator Pill */}
-                  {isSelected && (
-                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-sm">
-                      Active
-                    </div>
+                  {isPlaying ? (
+                    <>
+                      <Pause className="w-3.5 h-3.5 fill-current" />
+                      <span>Pause</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>Simulate</span>
+                    </>
                   )}
                 </button>
-              );
-            })}
-          </div>
 
-          {/* Feedback loop alert banner when triggered */}
-          {feedbackFlash && (
-            <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs font-mono text-amber-900 flex items-center justify-between animate-pulse">
-              <span className="flex items-center gap-2 font-bold">
-                <RefreshCw className="w-4 h-4 text-amber-600 animate-spin" />
-                Feedback path activated: PR review requested changes → returning to Stage 03 (Coding Agent implementation)
-              </span>
-              <span className="text-amber-700 text-[11px]">Rework in sandbox</span>
-            </div>
-          )}
+                {!isSimulationHUDOpen && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSimulationHUDOpen(true);
+                      scrollToWorkflow();
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold transition-colors cursor-pointer text-xs font-mono"
+                    title="Otwórz panel lektora i animacji (Simulation Player)"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="hidden sm:inline">Voice &amp; HUD</span>
+                  </button>
+                )}
 
-          {/* Active Step Deep-Dive Pane */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-soft overflow-hidden">
-            {/* Stage Summary Banner */}
-            <div className="bg-slate-900 text-white p-5 sm:p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-11 h-11 rounded-2xl flex items-center justify-center font-display font-extrabold text-lg text-white shadow-md ${
-                    activeStep < 2
-                      ? "bg-blue-600"
-                      : activeStep === 2
-                      ? "bg-emerald-600"
-                      : "bg-amber-600"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode("blueprint");
+                    setIsPlaying(false);
+                    setIsSimulationHUDOpen(false);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 hover:border-slate-400 font-semibold transition-colors cursor-pointer"
+                  title="Collapse to compact diagram (0.5x size)"
+                >
+                  <Minimize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Compact Diagram</span>
+                  <span className="sm:hidden">0.5x</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleStartSimulation}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono text-xs font-bold transition-all shadow-md hover:shadow-emerald-600/20 active:scale-95 cursor-pointer"
+                  title="Start pipeline simulation with voice narration & animations"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Simulate</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode("interactive");
+                    setTimeout(() => scrollToWorkflow(), 60);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm hover:shadow hover:shadow-blue-600/20 active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Interactive Mode</span>
+                  <span className="sm:hidden">Interactive</span>
+                  <ChevronRight className="w-3 h-3 ml-0.5 opacity-80" />
+                </button>
+
+                {/* x1 Button to enlarge the diagram itself */}
+                <button
+                  type="button"
+                  onClick={() => setDiagramScale((prev) => (prev === "0.5x" ? "1x" : "0.5x"))}
+                  className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
+                    diagramScale === "1x"
+                      ? "bg-slate-900 text-white border-slate-900 hover:bg-slate-800"
+                      : "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 hover:border-slate-400"
                   }`}
+                  title={diagramScale === "1x" ? "Scale down diagram (0.5x)" : "Enlarge diagram (1x)"}
                 >
-                  {currentStep.stepNumber}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-slate-400 uppercase tracking-widest font-semibold">
-                      {currentStep.category}
-                    </span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-800 text-blue-300 border border-slate-700">
-                      {currentStep.modelBadge}
-                    </span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-white mt-0.5">
-                    Stage {currentStep.stepNumber}: {currentStep.name}
-                  </h3>
-                </div>
-              </div>
+                  {diagramScale === "1x" ? (
+                    <>
+                      <Minimize2 className="w-3.5 h-3.5 text-slate-300" />
+                      <span>x0.5</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>x1</span>
+                    </>
+                  )}
+                </button>
+              </>
+            )}
 
-              {/* Navigation Arrows */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveStep((prev) => (prev > 0 ? prev - 1 : STEPS.length - 1));
-                    setIsPlaying(false);
-                  }}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700 cursor-pointer"
-                  title="Previous Step"
-                  aria-label="Previous Step"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <span className="text-xs font-mono text-slate-400 px-1">
-                  {activeStep + 1} / {STEPS.length}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveStep((prev) => (prev < STEPS.length - 1 ? prev + 1 : 0));
-                    setIsPlaying(false);
-                  }}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700 cursor-pointer"
-                  title="Next Step"
-                  aria-label="Next Step"
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
+            <a
+              href="/charts/workflow-en.svg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
+              title="Open raw vector SVG in new tab"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
+        {/* Main Panel Content */}
+        {viewMode === "blueprint" ? (
+          /* =========================================================================
+             ARCHITECTURE DIAGRAM (COMPACT 0.5X OR EXPANDED 1.0X)
+             ========================================================================= */
+          <>
+            {/* Diagram Container */}
+            <div className="rounded-2xl bg-[#f6f8fb] ring-1 ring-slate-900/5 p-2 sm:p-3 animate-in fade-in duration-200">
+              <Image
+                src="/charts/workflow-en.svg"
+                alt="Workflow — from idea to merged change"
+                width={1680}
+                height={850}
+                className="w-full h-auto rounded-lg shadow-sm"
+                priority
+              />
             </div>
 
-            {/* Split Content: Details on Left, Interactive Simulation on Right */}
-            <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Left Column: Context, Owner, Bullets, Deliverable */}
-              <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
-                <div className="space-y-5">
-                  {/* Responsible Actor Card */}
-                  {activeStep === 0 ? (
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                      <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
-                        Responsible Actor
+            {/* Quick Caption Strip */}
+            <div className="px-2.5 sm:px-3 pt-2.5 pb-1.5 text-[11px] font-mono text-slate-600">
+              Dashed line: feedback path (<code className="text-amber-700 bg-amber-50 px-1 py-0.5 rounded">Requested changes → rework</code>).
+            </div>
+          </>
+        ) : (
+          /* =========================================================================
+             EXPANDED INTERACTIVE PIPELINE (ORIGINAL FULL SIZE)
+             ========================================================================= */
+          <div
+            ref={stagesSectionRef}
+            className="rounded-2xl bg-[#f6f8fb] ring-1 ring-slate-900/5 p-3 sm:p-4 space-y-6 animate-in fade-in zoom-in-[0.99] duration-300 scroll-mt-24"
+          >
+            {/* 4-Stage Stepper Ribbon */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
+              {STEPS.map((step, idx) => {
+                const isSelected = activeStep === idx;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveStep(idx);
+                      setIsPlaying(false);
+                    }}
+                    className={`text-left p-4 rounded-2xl border transition-all duration-200 relative group cursor-pointer ${
+                      isSelected
+                        ? `bg-white ${step.accentColor.activeBorder} shadow-md ring-2 ${step.accentColor.activeRing}`
+                        : `bg-white/80 border-slate-200 hover:border-slate-300 hover:bg-white`
+                    }`}
+                    aria-selected={isSelected}
+                    role="tab"
+                  >
+                    {/* Step Top Bar */}
+                    <div className="flex items-center justify-between mb-3">
+                      <span
+                        className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${
+                          isSelected
+                            ? `${step.accentColor.badgeBg} ${step.accentColor.badgeText}`
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {step.stepNumber}
+                      </span>
+                      <span className="text-[10px] font-mono font-medium text-slate-400 uppercase tracking-wider">
+                        {step.categoryLabel}
+                      </span>
+                    </div>
+
+                    {/* Title & Owner */}
+                    <h3 className="font-display font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors">
+                      {step.name}
+                    </h3>
+                    <div className="text-xs text-slate-600 font-mono mt-1 truncate">
+                      {step.owner}
+                    </div>
+
+                    {/* Deliverable snippet */}
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono">
+                      <span className="text-slate-400 uppercase text-[9px] tracking-wider font-semibold">
+                        {step.deliverableType}
+                      </span>
+                      <span
+                        className={`font-semibold truncate max-w-[130px] ${
+                          isSelected ? step.accentColor.badgeText : "text-slate-700"
+                        }`}
+                        title={step.deliverable}
+                      >
+                        {step.deliverable}
+                      </span>
+                    </div>
+
+                    {/* Active Step Indicator Pill */}
+                    {isSelected && (
+                      <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-sm">
+                        Active
                       </div>
-                      <div className="mt-2.5 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 shadow-sm">
-                          <User className="w-5 h-5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Feedback loop alert banner when triggered */}
+            {feedbackFlash && (
+              <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs font-mono text-amber-900 flex items-center justify-between animate-pulse">
+                <span className="flex items-center gap-2 font-bold">
+                  <RefreshCw className="w-4 h-4 text-amber-600 animate-spin" />
+                  Feedback path activated: PR review requested changes → returning to Stage 03 (Coding Agent implementation)
+                </span>
+                <span className="text-amber-700 text-[11px]">Rework in sandbox</span>
+              </div>
+            )}
+
+            {/* Active Step Deep-Dive Pane */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-soft overflow-hidden">
+              {/* Stage Summary Banner */}
+              <div className="bg-slate-900 text-white p-5 sm:p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center font-display font-extrabold text-lg text-white shadow-md ${
+                      activeStep < 2
+                        ? "bg-blue-600"
+                        : activeStep === 2
+                        ? "bg-emerald-600"
+                        : "bg-amber-600"
+                    }`}
+                  >
+                    {currentStep.stepNumber}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-slate-400 uppercase tracking-widest font-semibold">
+                        {currentStep.category}
+                      </span>
+                      <span className="text-slate-600">•</span>
+                      <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-800 text-blue-300 border border-slate-700">
+                        {currentStep.modelBadge}
+                      </span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-white mt-0.5">
+                      Stage {currentStep.stepNumber}: {currentStep.name}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Navigation Arrows */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveStep((prev) => (prev > 0 ? prev - 1 : STEPS.length - 1));
+                      setIsPlaying(false);
+                    }}
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700 cursor-pointer"
+                    title="Previous Step"
+                    aria-label="Previous Step"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-xs font-mono text-slate-400 px-1">
+                    {activeStep + 1} / {STEPS.length}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveStep((prev) => (prev < STEPS.length - 1 ? prev + 1 : 0));
+                      setIsPlaying(false);
+                    }}
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700 cursor-pointer"
+                    title="Next Step"
+                    aria-label="Next Step"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Split Content: Details on Left, Interactive Simulation on Right */}
+              <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left Column: Context, Owner, Bullets, Deliverable */}
+                <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+                  <div className="space-y-5">
+                    {/* Responsible Actor Card */}
+                    {activeStep === 0 ? (
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
+                          Responsible Actor
                         </div>
-                        <div>
-                          <div className="font-display font-extrabold text-slate-950 text-base leading-tight">
-                            Human
+                        <div className="mt-2.5 flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-blue-100 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 shadow-sm">
+                            <User className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="font-display font-extrabold text-slate-950 text-base leading-tight">
+                              Human
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ) : activeStep === 1 ? (
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                      <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
-                        Responsible Actor &amp; Tooling
+                    ) : activeStep === 1 ? (
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
+                          Responsible Actor &amp; Tooling
+                        </div>
+                        <div className="mt-1 flex items-center justify-between">
+                          <div className="font-semibold text-slate-900 text-sm">
+                            {currentStep.owner}
+                          </div>
+                        </div>
+                        <div className="mt-2 text-xs text-slate-600 font-mono">
+                          <span className="text-slate-500 font-medium">Proposed Tools:</span>
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                            <a
+                              href="https://www.aihero.dev/skills-wayfinder"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 font-semibold transition-colors shadow-xs"
+                              title="Matt Pocock's /wayfinder skill"
+                            >
+                              <span>/wayfinder</span>
+                              <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                            </a>
+                            <a
+                              href="https://www.aihero.dev/skills-triage"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 font-semibold transition-colors shadow-xs"
+                              title="Matt Pocock's /triage skill"
+                            >
+                              <span>/triage</span>
+                              <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                            </a>
+                            <a
+                              href="https://www.aihero.dev/skills-to-tickets"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 font-semibold transition-colors shadow-xs"
+                              title="Matt Pocock's /to-tickets skill"
+                            >
+                              <span>/to-tickets</span>
+                              <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                            </a>
+                          </div>
+                        </div>
+                        <p className="mt-2 text-[11px] text-slate-500 font-sans leading-relaxed">
+                          Currently in testing, skills from Matt Pocock&apos;s workflow are being used; focus is currently on preparing the agent rather than the entire workflow.
+                        </p>
                       </div>
-                      <div className="mt-1 flex items-center justify-between">
-                        <div className="font-semibold text-slate-900 text-sm">
-                          {currentStep.owner}
+                    ) : activeStep === 2 ? (
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
+                          Responsible Actor &amp; Tooling
+                        </div>
+                        <div className="mt-1 flex items-center justify-between">
+                          <div className="font-semibold text-slate-900 text-sm">
+                            {currentStep.owner}
+                          </div>
+                        </div>
+                        <div className="mt-1.5 text-xs text-slate-600 font-mono flex flex-wrap items-center gap-1.5">
+                          <span>Tool: Autonomous implementation</span>
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800 font-semibold text-[11px]">
+                            <span>Agent</span>
+                            <Bot className="w-3 h-3 text-emerald-600" />
+                          </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-xs text-slate-600 font-mono">
-                        <span className="text-slate-500 font-medium">Proposed Tools:</span>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                          <a
-                            href="https://www.aihero.dev/skills-wayfinder"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 font-semibold transition-colors shadow-xs"
-                            title="Matt Pocock's /wayfinder skill"
-                          >
-                            <span>/wayfinder</span>
-                            <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-                          </a>
-                          <a
-                            href="https://www.aihero.dev/skills-triage"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 font-semibold transition-colors shadow-xs"
-                            title="Matt Pocock's /triage skill"
-                          >
-                            <span>/triage</span>
-                            <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-                          </a>
-                          <a
-                            href="https://www.aihero.dev/skills-to-tickets"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 font-semibold transition-colors shadow-xs"
-                            title="Matt Pocock's /to-tickets skill"
-                          >
-                            <span>/to-tickets</span>
-                            <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-                          </a>
+                    ) : (
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
+                          Responsible Actor &amp; Tooling
+                        </div>
+                        <div className="mt-1 flex items-center justify-between">
+                          <div className="font-semibold text-slate-900 text-sm">
+                            {currentStep.owner}
+                          </div>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-600 font-mono">
+                          Tool: {currentStep.tool}
                         </div>
                       </div>
-                      <p className="mt-2 text-[11px] text-slate-500 font-sans leading-relaxed">
-                        Currently in testing, skills from Matt Pocock&apos;s workflow are being used; focus is currently on preparing the agent rather than the entire workflow.
-                      </p>
-                    </div>
-                  ) : activeStep === 2 ? (
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                      <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
-                        Responsible Actor &amp; Tooling
-                      </div>
-                      <div className="mt-1 flex items-center justify-between">
-                        <div className="font-semibold text-slate-900 text-sm">
-                          {currentStep.owner}
-                        </div>
-                      </div>
-                      <div className="mt-1.5 text-xs text-slate-600 font-mono flex flex-wrap items-center gap-1.5">
-                        <span>Tool: Autonomous implementation</span>
-                        <span className="inline-flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800 font-semibold text-[11px]">
-                          <span>Agent</span>
-                          <Bot className="w-3 h-3 text-emerald-600" />
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                      <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
-                        Responsible Actor &amp; Tooling
-                      </div>
-                      <div className="mt-1 flex items-center justify-between">
-                        <div className="font-semibold text-slate-900 text-sm">
-                          {currentStep.owner}
-                        </div>
-                      </div>
-                      <div className="mt-1 text-xs text-slate-600 font-mono">
-                        Tool: {currentStep.tool}
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Actions / Process Checklist */}
-                  <div>
-                    <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-3">
-                      Core Operations
-                    </h4>
-                    <ul className="space-y-2.5">
-                      {currentStep.bullets.map((bullet, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700">
-                          <CheckCircle2
-                            className={`w-4 h-4 shrink-0 mt-0.5 ${
-                              activeStep < 2
-                                ? "text-blue-600"
-                                : activeStep === 2
-                                ? "text-emerald-600"
-                                : "text-amber-600"
-                            }`}
-                          />
-                          <span>{bullet}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                    {/* Actions / Process Checklist */}
+                    <div>
+                      <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-3">
+                        Core Operations
+                      </h4>
+                      <ul className="space-y-2.5">
+                        {currentStep.bullets.map((bullet, i) => (
+                          <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700">
+                            <CheckCircle2
+                              className={`w-4 h-4 shrink-0 mt-0.5 ${
+                                activeStep < 2
+                                  ? "text-blue-600"
+                                  : activeStep === 2
+                                  ? "text-emerald-600"
+                                  : "text-amber-600"
+                              }`}
+                            />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                  {/* Deliverable or Gate */}
-                  <div
-                    className={`p-4 rounded-2xl border ${
-                      currentStep.deliverableType === "MERGE GATE"
-                        ? "bg-amber-50/70 border-amber-200 text-amber-900"
-                        : activeStep === 2
-                        ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
-                        : "bg-blue-50/70 border-blue-200 text-blue-900"
-                    }`}
-                  >
-                    <div className="text-[10px] font-mono uppercase tracking-widest font-bold opacity-75">
-                      {currentStep.deliverableType}
-                    </div>
-                    <div className="mt-1 font-display font-bold text-base">
-                      {currentStep.deliverable}
-                    </div>
-                    <div className="mt-1 text-xs opacity-80 font-mono">
-                      {activeStep === 0 && "Defines clear boundary and architectural scope."}
-                      {activeStep === 1 && "Creates ready-for-agent GitHub issues with acceptance criteria."}
-                      {activeStep === 2 && "Automated test runs, git commit, and Pull Request with logs."}
-                      {activeStep === 3 && "Merge requires human sign-off; changes trigger rework loop."}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Quick-Action Buttons */}
-                <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
-                  {activeStep < 3 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveStep((prev) => prev + 1);
-                        setIsPlaying(false);
-                      }}
-                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
+                    {/* Deliverable or Gate */}
+                    <div
+                      className={`p-4 rounded-2xl border ${
+                        currentStep.deliverableType === "MERGE GATE"
+                          ? "bg-amber-50/70 border-amber-200 text-amber-900"
+                          : activeStep === 2
+                          ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
+                          : "bg-blue-50/70 border-blue-200 text-blue-900"
+                      }`}
                     >
-                      <span>Proceed to {STEPS[activeStep + 1].name}</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleTriggerFeedbackLoop}
-                        className="inline-flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-mono text-xs font-bold px-3.5 py-2.5 rounded-xl border border-amber-300 transition-all cursor-pointer"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Simulate: Request changes → rework</span>
-                      </button>
+                      <div className="text-[10px] font-mono uppercase tracking-widest font-bold opacity-75">
+                        {currentStep.deliverableType}
+                      </div>
+                      <div className="mt-1 font-display font-bold text-base">
+                        {currentStep.deliverable}
+                      </div>
+                      <div className="mt-1 text-xs opacity-80 font-mono">
+                        {activeStep === 0 && "Defines clear boundary and architectural scope."}
+                        {activeStep === 1 && "Creates ready-for-agent GitHub issues with acceptance criteria."}
+                        {activeStep === 2 && "Automated test runs, git commit, and Pull Request with logs."}
+                        {activeStep === 3 && "Merge requires human sign-off; changes trigger rework loop."}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Quick-Action Buttons */}
+                  <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+                    {activeStep < 3 ? (
                       <button
                         type="button"
                         onClick={() => {
-                          setMergeApproved(true);
-                          setTimeout(() => setMergeApproved(false), 2500);
+                          setActiveStep((prev) => prev + 1);
+                          setIsPlaying(false);
                         }}
-                        className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
+                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
                       >
-                        <GitMerge className="w-3.5 h-3.5" />
-                        <span>Approve &amp; Merge</span>
+                        <span>Proceed to {STEPS[activeStep + 1].name}</span>
+                        <ChevronRight className="w-4 h-4" />
                       </button>
-                    </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleTriggerFeedbackLoop}
+                          className="inline-flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-mono text-xs font-bold px-3.5 py-2.5 rounded-xl border border-amber-300 transition-all cursor-pointer"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Simulate: Request changes → rework</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMergeApproved(true);
+                            setTimeout(() => setMergeApproved(false), 2500);
+                          }}
+                          className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
+                        >
+                          <GitMerge className="w-3.5 h-3.5" />
+                          <span>Approve &amp; Merge</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Column: Realistic Interactive Mock Simulation */}
+                <div className="lg:col-span-7">
+                  {activeStep === 0 && <IdeaMockSimulation />}
+                  {activeStep === 1 && <PlanningMockSimulation />}
+                  {activeStep === 2 && (
+                    <ImplementationMockSimulation onOpenDiagram={(diag) => setZoomedDiagram(diag)} />
+                  )}
+                  {activeStep === 3 && (
+                    <ReviewMockSimulation
+                      mergeApproved={mergeApproved}
+                      onRequestChanges={handleTriggerFeedbackLoop}
+                      onApprove={() => {
+                        setMergeApproved(true);
+                        setTimeout(() => setMergeApproved(false), 2500);
+                      }}
+                    />
                   )}
                 </div>
               </div>
 
-              {/* Right Column: Realistic Interactive Mock Simulation */}
-              <div className="lg:col-span-7">
-                {activeStep === 0 && <IdeaMockSimulation />}
-                {activeStep === 1 && <PlanningMockSimulation />}
+              {/* Bottom Context Strip */}
+              <div className="bg-slate-50 border-t border-slate-200/80 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500 gap-3">
+                {activeStep === 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span className="font-semibold text-slate-800">Human Discovery:</span>
+                    <span>Formulate intent &amp; desired outcome before entering workflow.</span>
+                  </div>
+                )}
+                {activeStep === 1 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span className="font-semibold text-slate-800">Agent Handoff:</span>
+                    <span>Specified issue with <code className="text-blue-700 bg-blue-50 px-1 rounded">ready-for-agent</code> label dispatches to Agent.</span>
+                  </div>
+                )}
                 {activeStep === 2 && (
-                  <ImplementationMockSimulation onOpenDiagram={(diag) => setZoomedDiagram(diag)} />
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="font-semibold text-slate-800">Docker Sandbox:</span>
+                    <span>Agent executes in isolation, verifies test suites, and creates PR.</span>
+                  </div>
                 )}
                 {activeStep === 3 && (
-                  <ReviewMockSimulation
-                    mergeApproved={mergeApproved}
-                    onRequestChanges={handleTriggerFeedbackLoop}
-                    onApprove={() => {
-                      setMergeApproved(true);
-                      setTimeout(() => setMergeApproved(false), 2500);
-                    }}
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span className="font-semibold text-amber-900">Feedback Loop:</span>
+                    <span className="text-amber-800">Requested changes return to implementation (Stage 03) for rework.</span>
+                  </div>
                 )}
-              </div>
-            </div>
-
-            {/* Bottom Context Strip */}
-            <div className="bg-slate-50 border-t border-slate-200/80 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500 gap-3">
-              {activeStep === 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  <span className="font-semibold text-slate-800">Human Discovery:</span>
-                  <span>Formulate intent &amp; desired outcome before entering workflow.</span>
+                {/* Chain: Idea (Human) ➔ Planning (Human) ➔ Agent (AI) ➔ Review (Human) */}
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-700">
+                    <span>Idea</span>
+                    <User className="w-3 h-3 text-blue-600" />
+                  </span>
+                  <span className="text-slate-400">➔</span>
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-700">
+                    <span>Planning</span>
+                    <User className="w-3 h-3 text-blue-600" />
+                  </span>
+                  <span className="text-slate-400">➔</span>
+                  <span className="inline-flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800 font-semibold">
+                    <span>Agent</span>
+                    <Bot className="w-3 h-3 text-emerald-600" />
+                  </span>
+                  <span className="text-slate-400">➔</span>
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-700">
+                    <span>Review</span>
+                    <User className="w-3 h-3 text-amber-600" />
+                  </span>
                 </div>
-              )}
-              {activeStep === 1 && (
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  <span className="font-semibold text-slate-800">Agent Handoff:</span>
-                  <span>Specified issue with <code className="text-blue-700 bg-blue-50 px-1 rounded">ready-for-agent</code> label dispatches to Agent.</span>
-                </div>
-              )}
-              {activeStep === 2 && (
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span className="font-semibold text-slate-800">Docker Sandbox:</span>
-                  <span>Agent executes in isolation, verifies test suites, and creates PR.</span>
-                </div>
-              )}
-              {activeStep === 3 && (
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                  <span className="font-semibold text-amber-900">Feedback Loop:</span>
-                  <span className="text-amber-800">Requested changes return to implementation (Stage 03) for rework.</span>
-                </div>
-              )}
-              {/* Chain: Idea (Human) ➔ Planning (Human) ➔ Agent (AI) ➔ Review (Human) */}
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
-                <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-700">
-                  <span>Idea</span>
-                  <User className="w-3 h-3 text-blue-600" />
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-700">
-                  <span>Planning</span>
-                  <User className="w-3 h-3 text-blue-600" />
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className="inline-flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800 font-semibold">
-                  <span>Agent</span>
-                  <Bot className="w-3 h-3 text-emerald-600" />
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-700">
-                  <span>Review</span>
-                  <User className="w-3 h-3 text-amber-600" />
-                </span>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Lightbox / Zoom Modal for Architecture Diagrams */}
       {zoomedDiagram && (
