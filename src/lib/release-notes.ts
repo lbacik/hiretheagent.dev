@@ -6,7 +6,9 @@
 // - `* <title> by @<login> in <PR url>`;
 // - `## New Contributors` and its lines;
 // - `**Full Changelog**: <url>`.
-// Blank lines are ignored.
+// Blank lines and single-line HTML comments are ignored (GitHub prepends
+// `<!-- Release notes generated using configuration in .github/release.yml
+// ... -->` when the repo configures its notes).
 //
 // Output: categories with their Changes (title, PR number, PR URL), with
 // `by @<login>` dropped. "New Contributors" and "Full Changelog" are parsed
@@ -32,6 +34,25 @@ export type ReleaseNotes =
   | { kind: "maintenance" };
 
 const ENTRY_PATTERN = /^\* (.+) by @\S+ in (\S+\/pull\/(\d+))$/;
+const HTML_COMMENT_PATTERN = /^<!--.*-->$/;
+const INLINE_CODE_PATTERN = /`([^`]+)`/g;
+
+export type TitleSegment = { kind: "text" | "code"; text: string };
+
+// Splits a Change title on paired backticks so `code` spans can be shown as
+// <code>. An unpaired backtick stays in the text as is.
+export function splitInlineCode(title: string): TitleSegment[] {
+  const segments: TitleSegment[] = [];
+  let last = 0;
+  for (const match of title.matchAll(INLINE_CODE_PATTERN)) {
+    if (match.index > last)
+      segments.push({ kind: "text", text: title.slice(last, match.index) });
+    segments.push({ kind: "code", text: match[1] ?? "" });
+    last = match.index + match[0].length;
+  }
+  if (last < title.length) segments.push({ kind: "text", text: title.slice(last) });
+  return segments;
+}
 
 export function parseReleaseNotes(body: string | null): ReleaseNotes {
   if (body === null || body.trim() === "") return { kind: "maintenance" };
@@ -42,7 +63,7 @@ export function parseReleaseNotes(body: string | null): ReleaseNotes {
 
   // Bodies edited in GitHub's web UI come back with CRLF line endings.
   for (const line of body.split(/\r?\n/)) {
-    if (line.trim() === "") continue;
+    if (line.trim() === "" || HTML_COMMENT_PATTERN.test(line.trim())) continue;
     if (line.startsWith("## What's Changed")) section = "changes";
     else if (line.startsWith("## New Contributors")) section = "contributors";
     else if (line.startsWith("### ") && section === "changes")

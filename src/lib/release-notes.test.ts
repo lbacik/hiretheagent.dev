@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseReleaseNotes } from "./release-notes";
+import { parseReleaseNotes, splitInlineCode } from "./release-notes";
 
 const GENERATED = `## What's Changed
 ### Features
@@ -88,6 +88,38 @@ describe("parseReleaseNotes", () => {
     expect(parseReleaseNotes(crlf)).toEqual(parseReleaseNotes(GENERATED));
   });
 
+  it("ignores the HTML comment GitHub prepends for a configured release.yml", () => {
+    const body = `<!-- Release notes generated using configuration in .github/release.yml at v0.5.1 -->
+
+## What's Changed
+### Other changes
+* Stop prefixing PR titles with \`agent:\` by @lbacik in https://github.com/lbacik/simple-coding-agent/pull/262
+* Publish a GitHub Release with categorized notes for every \`v*\` tag by @lbacik in https://github.com/lbacik/simple-coding-agent/pull/264
+
+
+**Full Changelog**: https://github.com/lbacik/simple-coding-agent/compare/v0.5.0...v0.5.1`;
+    expect(parseReleaseNotes(body)).toEqual({
+      kind: "parsed",
+      categories: [
+        {
+          title: "Other changes",
+          changes: [
+            {
+              title: "Stop prefixing PR titles with `agent:`",
+              prNumber: 262,
+              prUrl: "https://github.com/lbacik/simple-coding-agent/pull/262",
+            },
+            {
+              title: "Publish a GitHub Release with categorized notes for every `v*` tag",
+              prNumber: 264,
+              prUrl: "https://github.com/lbacik/simple-coding-agent/pull/264",
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it("falls back to plain text when a line falls outside the shape", () => {
     const body = "## What's Changed\n### Features\n* Add dark mode by @alice in https://github.com/lbacik/simple-coding-agent/pull/12\nSee the setup guide for the new env vars.";
     expect(parseReleaseNotes(body)).toEqual({ kind: "fallback", text: body });
@@ -112,5 +144,33 @@ describe("parseReleaseNotes", () => {
         "**Full Changelog**: https://github.com/lbacik/simple-coding-agent/compare/v0.2.1...v0.2.2",
       ),
     ).toEqual({ kind: "maintenance" });
+  });
+});
+
+describe("splitInlineCode", () => {
+  it("returns a title without backticks as one text segment", () => {
+    expect(splitInlineCode("Add dark mode")).toEqual([{ kind: "text", text: "Add dark mode" }]);
+  });
+
+  it("splits paired backticks into code segments", () => {
+    expect(splitInlineCode("Publish notes for every `v*` tag")).toEqual([
+      { kind: "text", text: "Publish notes for every " },
+      { kind: "code", text: "v*" },
+      { kind: "text", text: " tag" },
+    ]);
+  });
+
+  it("handles code at the edges and several spans", () => {
+    expect(splitInlineCode("`a` and `b`")).toEqual([
+      { kind: "code", text: "a" },
+      { kind: "text", text: " and " },
+      { kind: "code", text: "b" },
+    ]);
+  });
+
+  it("leaves an unpaired backtick in the text", () => {
+    expect(splitInlineCode("Rename `foo to bar")).toEqual([
+      { kind: "text", text: "Rename `foo to bar" },
+    ]);
   });
 });

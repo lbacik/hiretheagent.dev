@@ -17,6 +17,7 @@ import {
   type ChangeLogRow,
 } from "@/lib/change-log";
 import { formatReleaseDate } from "@/lib/releases";
+import { ChangeTitle } from "./ChangeTitle";
 
 const BADGE: Record<string, string> = {
   Features: "bg-blue-50 text-blue-700 border-blue-200",
@@ -97,7 +98,9 @@ export function ChangeLogFeed({ rows }: { rows: ChangeLogRow[] }) {
                   >
                     {LABEL[row.category] ?? row.category}
                   </span>
-                  <span className="text-sm text-slate-700">{row.title}</span>
+                  <span className="text-sm text-slate-700">
+                    <ChangeTitle title={row.title} />
+                  </span>
                   <a
                     href={row.prUrl}
                     target="_blank"
