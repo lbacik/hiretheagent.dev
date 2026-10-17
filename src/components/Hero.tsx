@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { Check, Sparkles } from "lucide-react";
+import { WorkflowPrototypeSwitcher, WorkflowSeparator } from "./InteractiveWorkflow.prototype";
 import { Articles } from "./Articles";
 import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
@@ -48,8 +50,15 @@ export function Hero() {
       {/* Articles row */}
       <Articles />
 
-      {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
-      <InteractiveWorkflow />
+      {/* PROTOTYPE: ?variant= switches separator + workflow frame (InteractiveWorkflow.prototype.tsx) */}
+      <Suspense fallback={null}>
+        <WorkflowSeparator />
+
+        {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
+        <InteractiveWorkflow />
+
+        <WorkflowPrototypeSwitcher />
+      </Suspense>
 
       {/* Quick Start Guide */}
       <QuickStart />

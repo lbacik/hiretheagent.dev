@@ -28,6 +28,11 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { WorkflowSimulationHUD } from "./WorkflowSimulationHUD";
+import {
+  BlueprintFrame,
+  InteractiveFrame,
+  useWorkflowVariant,
+} from "./InteractiveWorkflow.prototype";
 
 interface StepData {
   id: string;
@@ -177,6 +182,7 @@ export function InteractiveWorkflow() {
     title: string;
     desc?: string;
   } | null>(null);
+  const prototypeVariant = useWorkflowVariant();
 
   // Close zoomed diagram on Escape key
   useEffect(() => {
@@ -194,7 +200,8 @@ export function InteractiveWorkflow() {
   const scrollToWorkflow = () => {
     const target = workflowContainerRef.current || stagesSectionRef.current;
     if (target) {
-      const headerOffset = 76; // header height + margin
+      // PROTOTYPE: 76 hides the toolbar under header + version bar; variants use 124
+      const headerOffset = prototypeVariant === "A" ? 76 : 124; // header height + margin
       const elementPosition = target.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -261,15 +268,32 @@ export function InteractiveWorkflow() {
   const isExpandedWidth =
     viewMode === "interactive" || (viewMode === "blueprint" && diagramScale === "1x");
 
+  // PROTOTYPE: alternative frames, see InteractiveWorkflow.prototype.tsx
+  const useProtoFrame = prototypeVariant !== "A";
+
   return (
     <div
       ref={workflowContainerRef}
       id="workflow"
-      className={`w-full mx-auto mt-6 sm:mt-8 mb-0 scroll-mt-20 transition-all duration-300 ease-in-out text-left ${
+      className={`w-full mx-auto ${prototypeVariant === "A" ? "mt-6 sm:mt-8" : "mt-0"} mb-0 scroll-mt-20 transition-all duration-300 ease-in-out text-left ${
         isExpandedWidth ? "max-w-5xl lg:max-w-6xl" : "max-w-xl sm:max-w-2xl"
       }`}
     >
+      {viewMode === "blueprint" && prototypeVariant !== "A" && (
+        <BlueprintFrame
+          variant={prototypeVariant}
+          diagramScale={diagramScale}
+          onSimulate={handleStartSimulation}
+          onInteractive={() => {
+            setViewMode("interactive");
+            setTimeout(() => scrollToWorkflow(), 60);
+          }}
+          onToggleScale={() => setDiagramScale((prev) => (prev === "0.5x" ? "1x" : "0.5x"))}
+        />
+      )}
+
       {/* Top Header / Mode Switcher Toolbar */}
+      {!useProtoFrame && (
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
@@ -414,9 +438,10 @@ export function InteractiveWorkflow() {
           </a>
         </div>
       </div>
+      )}
 
       {/* Main Panel Content */}
-      {viewMode === "blueprint" ? (
+      {viewMode === "blueprint" && useProtoFrame ? null : viewMode === "blueprint" ? (
         /* =========================================================================
            ARCHITECTURE DIAGRAM (COMPACT 0.5X OR EXPANDED 1.0X)
            ========================================================================= */
@@ -454,6 +479,21 @@ export function InteractiveWorkflow() {
         /* =========================================================================
            EXPANDED INTERACTIVE PIPELINE (ORIGINAL FULL SIZE)
            ========================================================================= */
+        <InteractiveFrame
+          variant={prototypeVariant}
+          isPlaying={isPlaying}
+          isHUDOpen={isSimulationHUDOpen}
+          onToggleSimulation={handleToggleSimulation}
+          onOpenHUD={() => {
+            setIsSimulationHUDOpen(true);
+            scrollToWorkflow();
+          }}
+          onCompact={() => {
+            setViewMode("blueprint");
+            setIsPlaying(false);
+            setIsSimulationHUDOpen(false);
+          }}
+        >
         <div
           ref={stagesSectionRef}
           className="space-y-6 animate-in fade-in zoom-in-[0.99] duration-300 scroll-mt-24"
@@ -871,6 +911,7 @@ export function InteractiveWorkflow() {
             </div>
           </div>
         </div>
+        </InteractiveFrame>
       )}
 
       {/* Lightbox / Zoom Modal for Architecture Diagrams */}
