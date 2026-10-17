@@ -25,6 +25,13 @@ export function Header() {
           >
             <span>Quick start</span>
           </a>
+          {/* PROTOTYPE: Articles nav link */}
+          <a
+            href="#articles"
+            className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
+          >
+            <span>Articles</span>
+          </a>
           <a
             href="#workflow"
             className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"

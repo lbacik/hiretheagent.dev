@@ -3,6 +3,8 @@ import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
+import { Suspense } from "react";
+import { ArticlesPrototype } from "./articles-prototype/ArticlesPrototype";
 
 export function Hero() {
   return (
@@ -42,6 +44,11 @@ export function Hero() {
           </span>
         </div>
       </div>
+
+      {/* PROTOTYPE: Articles section variants */}
+      <Suspense>
+        <ArticlesPrototype />
+      </Suspense>
 
       {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
       <InteractiveWorkflow />
