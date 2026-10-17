@@ -23,3 +23,7 @@ _Avoid_: Release history, news
 **Change**:
 One entry in a Release's notes, corresponding to one merged pull request and categorized as a feature, a fix or another change. The Change log lists Changes, grouped under the Release that shipped them.
 _Avoid_: Commit, update, item
+
+**Article**:
+A Medium post written by the page's author that is directly about simple-coding-agent or this page. Posts about coding agents in general, or by other authors, are not Articles.
+_Avoid_: Post, blog entry, story
