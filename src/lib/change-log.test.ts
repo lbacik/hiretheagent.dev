@@ -121,7 +121,7 @@ describe("buildChangeLogRows", () => {
         kind: "maintenance",
         key: "v0.2.2",
         releaseTag: "v0.2.2",
-        releaseName: "v0.2.0",
+        releaseName: "v0.2.2",
         releaseUrl: "https://github.com/lbacik/simple-coding-agent/releases/tag/v0.2.0",
         releaseCreatedAt: "2026-10-14T15:25:17Z",
       },
