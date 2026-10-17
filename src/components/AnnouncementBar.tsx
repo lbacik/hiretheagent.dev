@@ -1,24 +1,29 @@
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import {
+  formatReleaseDate,
+  getCurrentRelease,
+  getStableReleases,
+  isFreshRelease,
+} from "@/lib/releases";
+import { parseReleaseNotes } from "@/lib/release-notes";
+import { VersionBar } from "./VersionBar";
 
-export function AnnouncementBar() {
+// Thin sticky bar below the Header showing simple-coding-agent's Current
+// Release. The Current Release is resolved on the server; the toggle state
+// lives in the client VersionBar. Renders nothing while there is no Release
+// (the API answers `200 []` until the Release backfill runs).
+export async function AnnouncementBar() {
+  const current = getCurrentRelease(await getStableReleases());
+  if (!current) return null;
+
   return (
-    <div className="bg-slate-900 text-slate-200 px-4 py-2.5 text-xs font-mono text-center flex flex-wrap items-center justify-center gap-2 border-b border-slate-800">
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-      </span>
-      <span className="text-amber-300 font-bold">Agent Sid v0.9:</span>
-      <span>Autonomous engineer for implementation tasks in an isolated Docker sandbox.</span>
-      <Link
-        href="https://github.com/lbacik/simple-coding-agent"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center text-blue-400 hover:text-blue-300 font-semibold underline underline-offset-2 ml-1"
-      >
-        GitHub Repo
-        <ArrowUpRight className="w-3.5 h-3.5 ml-0.5" />
-      </Link>
-    </div>
+    <VersionBar
+      release={{
+        name: current.name,
+        date: formatReleaseDate(current.createdAt),
+        fresh: isFreshRelease(current, new Date()),
+        notes: parseReleaseNotes(current.body),
+        htmlUrl: current.htmlUrl,
+      }}
+    />
   );
 }
