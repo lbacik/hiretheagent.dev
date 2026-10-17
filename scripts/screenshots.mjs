@@ -1,4 +1,5 @@
 // Captures the sticky version bar (closed bar and open "What's new" panel)
+// and the Articles row (hero, Articles pills, top of the workflow panel)
 // at desktop (1280 px) and mobile (390 px) widths.
 //
 // Targets a running server: `pnpm dev` first, then
@@ -6,8 +7,8 @@
 // Writes PNGs to ./screenshots/ (git-ignored). The maintainer runs this
 // during review against the real API and attaches the images to the PR.
 //
-// Without real Releases the bar renders nothing; the script then logs a
-// skip instead of failing.
+// Without real Releases the bar renders nothing; without Articles the
+// section renders nothing; the script then logs a skip instead of failing.
 
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -46,22 +47,55 @@ try {
       console.log(
         `[${viewport.name}] version bar not rendered (no Releases); skipping.`,
       );
-      await page.close();
+    } else {
+      await page.screenshot({
+        path: path.join(OUT_DIR, `version-bar-closed-${viewport.name}.png`),
+      });
+
+      await toggle.click();
+      await page.waitForSelector("button[aria-expanded='true']");
+      await new Promise((r) => setTimeout(r, 300));
+      await page.screenshot({
+        path: path.join(OUT_DIR, `version-bar-open-${viewport.name}.png`),
+      });
+      console.log(`[${viewport.name}] captured version bar closed + open.`);
+    }
+    await page.close();
+
+    // Articles row on a fresh page: centre #articles so the shot includes
+    // the hero above and the top of the workflow panel below.
+    const articlesPage = await browser.newPage();
+    await articlesPage.setViewport({
+      width: viewport.width,
+      height: viewport.height,
+      deviceScaleFactor: 1,
+    });
+    await articlesPage.goto(BASE_URL, { waitUntil: "networkidle0" });
+
+    const articles = await articlesPage.$("#articles");
+    if (!articles) {
+      console.log(
+        `[${viewport.name}] articles section not rendered (empty list); skipping.`,
+      );
+      await articlesPage.close();
       continue;
     }
 
-    await page.screenshot({
-      path: path.join(OUT_DIR, `version-bar-closed-${viewport.name}.png`),
+    await articlesPage.evaluate(() => {
+      document
+        .querySelector("#articles")
+        ?.scrollIntoView({ block: "center", inline: "nearest" });
     });
-
-    await toggle.click();
-    await page.waitForSelector("button[aria-expanded='true']");
     await new Promise((r) => setTimeout(r, 300));
-    await page.screenshot({
-      path: path.join(OUT_DIR, `version-bar-open-${viewport.name}.png`),
+    const overflow = await articlesPage.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    console.log(`[${viewport.name}] horizontal overflow: ${overflow}px.`);
+    await articlesPage.screenshot({
+      path: path.join(OUT_DIR, `articles-${viewport.name}.png`),
     });
-    console.log(`[${viewport.name}] captured closed + open.`);
-    await page.close();
+    console.log(`[${viewport.name}] captured articles.`);
+    await articlesPage.close();
   }
 } finally {
   await browser.close();

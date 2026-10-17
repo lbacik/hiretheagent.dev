@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Bot } from "lucide-react";
 
+import { getArticles } from "@/lib/articles";
+
 export function Header() {
+  const hasArticles = getArticles().length > 0;
   return (
     <header className="border-b border-slate-200/90 bg-white/90 backdrop-blur-md sticky top-0 z-30 transition-all">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -25,6 +28,14 @@ export function Header() {
           >
             <span>Quick start</span>
           </a>
+          {hasArticles && (
+            <a
+              href="#articles"
+              className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
+            >
+              <span>Articles</span>
+            </a>
+          )}
           <a
             href="#workflow"
             className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"

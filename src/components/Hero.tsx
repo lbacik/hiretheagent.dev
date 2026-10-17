@@ -1,4 +1,5 @@
 import { Check, Sparkles } from "lucide-react";
+import { Articles } from "./Articles";
 import { WaitlistForm } from "./WaitlistForm";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ActiveProjects } from "./ActiveProjects";
@@ -42,6 +43,9 @@ export function Hero() {
           </span>
         </div>
       </div>
+
+      {/* Articles row */}
+      <Articles />
 
       {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
       <InteractiveWorkflow />
