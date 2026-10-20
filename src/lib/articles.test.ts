@@ -10,7 +10,7 @@ describe("getArticles", () => {
     expect(dates).toEqual([...dates].sort());
     expect(articles[0].title).toBe("Coding Agent — Attempt 1");
     expect(articles[articles.length - 1].title).toBe(
-      "The trust boundary behind ready-for-agent",
+      "Agents on Autopilot",
     );
   });
 
