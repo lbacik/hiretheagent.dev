@@ -16,6 +16,11 @@ export type Article = {
 
 const ARTICLES: Article[] = [
   {
+    title: "Agents on Autopilot",
+    url: "https://lbacik.medium.com/agents-on-autopilot-e5f17554553e",
+    publishedAt: "2026-10-20",
+  },
+  {
     title: "The trust boundary behind ready-for-agent",
     url: "https://lbacik.medium.com/the-trust-boundary-behind-ready-for-agent-24b3d7e7ca9a",
     publishedAt: "2026-10-16",
