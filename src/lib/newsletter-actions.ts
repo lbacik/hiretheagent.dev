@@ -1,18 +1,49 @@
 "use server";
 
-import { isValidNewsletterEmail, newsletterConfig, subscribeToListmonk } from "./listmonk";
+import { headers } from "next/headers";
 
-export type NewsletterResult = { ok: boolean };
+import { isValidNewsletterEmail, newsletterConfig, subscribeToListmonk } from "./listmonk";
+import {
+  consumeNewsletterRateLimit,
+  resolveNewsletterClientIp,
+} from "./newsletter-rate-limit";
+
+export type NewsletterResult = { ok: boolean; throttled?: boolean };
 
 /**
  * Server Action behind the Newsletter form. Calls listmonk synchronously
  * (this page has no queue, worker or database) and reports back a bare
  * ok flag: the visitor sees one success state and one generic failure
- * state, never listmonk details.
+ * state, never listmonk details. A throttled visitor additionally gets
+ * the `throttled` flag for the distinct "too many attempts" message.
  *
- * Log lines carry only the outcome class, never the subscriber address.
+ * Sign-ups are throttled per source IP (sliding one-hour window) before
+ * any other work, so a refused sign-up never reaches listmonk.
+ *
+ * Log lines carry only the outcome class, never the subscriber address
+ * and never the client IP.
  */
+/**
+ * Reads the client IP from the forwarding header set by the reverse proxy
+ * (nginx-proxy). Falls back to the shared "unknown" bucket when the header
+ * is absent, so such requests are still throttled, never unlimited.
+ */
+async function newsletterClientIp(): Promise<string> {
+  try {
+    return resolveNewsletterClientIp((await headers()).get("x-forwarded-for"));
+  } catch {
+    return resolveNewsletterClientIp(null);
+  }
+}
+
 export async function subscribeNewsletter(email: string): Promise<NewsletterResult> {
+  // Throttle first, before any other work — a refused sign-up must never
+  // reach listmonk, or the form becomes a spam cannon. The log line carries
+  // neither the address nor the IP.
+  if (!consumeNewsletterRateLimit(await newsletterClientIp())) {
+    console.error("newsletter subscribe throttled: too many attempts, please try again later");
+    return { ok: false, throttled: true };
+  }
   const config = newsletterConfig();
   if (!config) {
     console.error("newsletter subscribe skipped: listmonk not configured");
