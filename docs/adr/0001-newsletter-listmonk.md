@@ -40,10 +40,13 @@ inside the page's own server.
   cron. The trade-off is that a slow listmonk response holds the form's
   Server Action open; a 10s timeout bounds this and surfaces as the generic
   failure state.
-- The visitor sees exactly two states — "Almost done: check your inbox
-  and click the confirmation link" and "Something went wrong, please try
-  again later" — and never listmonk details.
+- The visitor sees exactly three states — "Almost done: check your inbox
+  and click the confirmation link", "Something went wrong, please try
+  again later", and the throttled "Too many attempts, please try again
+  later" (per-IP sliding-window limit, checked before any other work so a
+  refused sign-up never reaches listmonk) — and never listmonk details.
 - Server logs carry only the outcome class (credentials / transient /
-  rejected), never the subscriber address.
+  rejected / throttled), never the subscriber address and never the
+  client IP.
 - API credentials live only in server-side env and never reach the
   browser.

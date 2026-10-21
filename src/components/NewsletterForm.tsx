@@ -8,7 +8,7 @@ import { subscribeNewsletter } from "@/lib/newsletter-actions";
 // kept as an alias so old links keep working.
 export function NewsletterForm({ available }: { available: boolean }) {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "throttled">("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -16,16 +16,18 @@ export function NewsletterForm({ available }: { available: boolean }) {
     if (!email || !email.includes("@")) return;
 
     setStatus("loading");
-    let ok = false;
+    let result: Awaited<ReturnType<typeof subscribeNewsletter>> | null = null;
     try {
-      ok = (await subscribeNewsletter(email)).ok;
+      result = await subscribeNewsletter(email);
     } catch {
-      ok = false;
+      result = null;
     }
-    if (ok) {
+    if (result?.ok) {
       setSubmittedEmail(email);
       setEmail("");
       setStatus("success");
+    } else if (result?.throttled) {
+      setStatus("throttled");
     } else {
       setStatus("error");
     }
@@ -104,9 +106,11 @@ export function NewsletterForm({ available }: { available: boolean }) {
             </button>
           </form>
 
-          {status === "error" && (
+          {(status === "error" || status === "throttled") && (
             <p role="alert" className="text-xs font-mono text-center text-red-600 mt-3">
-              Something went wrong, please try again later.
+              {status === "throttled"
+                ? "Too many attempts, please try again later."
+                : "Something went wrong, please try again later."}
             </p>
           )}
 
