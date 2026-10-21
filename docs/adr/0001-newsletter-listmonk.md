@@ -48,6 +48,14 @@ either.
     `altcha` package, no CDN), which fetches a challenge from the
     same-origin `GET /api/altcha/challenge` route and solves it in the
     visitor's browser before submit.
+  - The widget is invisible (`display="invisible"`) and solves on page
+    load; the trust line under the form shows its live status ("Running
+    human check…" / "Human check passed" / "Human check failed • Retry"),
+    and Subscribe stays disabled until the check passes. The form starts a
+    fresh check itself after every submit and on expiry, since the
+    widget's `auto="onload"` fires only once. Chosen over the visible
+    checkbox box, a floating popover and a restyled inline strip after a
+    prototype (branch `prototype/altcha-placement`).
   - On submit the server verifies the solution (signature + expiry +
     proof-of-work) **before** the per-IP throttle counts the attempt and
     before listmonk is called. A missing, tampered, expired or

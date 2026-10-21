@@ -68,6 +68,8 @@ Behaviour to know:
   "Coming soon" state and no request is ever made.
 - A duplicate address (409) shows the same "check your inbox" success as
   a new one; all failures show one generic "try again later" message.
+- The ALTCHA widget is invisible: it solves on page load, the line under
+  the form shows the check's status, and Subscribe unlocks once it passes.
 - A submit without a valid ALTCHA solution (missing, tampered, expired,
   or replayed) shows "Verification failed, please try again." and never
   reaches the throttle or listmonk; each solved challenge works once.

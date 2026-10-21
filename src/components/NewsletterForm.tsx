@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Check, CheckCircle2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { Check, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { subscribeNewsletter } from "@/lib/newsletter-actions";
 
 declare module "react" {
@@ -11,9 +11,10 @@ declare module "react" {
       "altcha-widget": {
         challenge?: string;
         auto?: "off" | "onfocus" | "onload" | "onsubmit";
+        display?: "standard" | "bar" | "floating" | "overlay" | "invisible";
         name?: string;
         className?: string;
-        ref?: (el: AltchaWidgetElement | null) => void;
+        ref?: (el: AltchaWidgetElement | null) => void | (() => void);
       };
     }
   }
@@ -22,7 +23,11 @@ declare module "react" {
 /** Minimal surface of the ALTCHA widget element this form uses. */
 export type AltchaWidgetElement = HTMLElement & {
   reset: (newState?: string | null, err?: string | null) => void;
+  verify: () => Promise<unknown>;
 };
+
+/** The widget's own states, reported through its `statechange` event. */
+type AltchaState = "unverified" | "verifying" | "verified" | "expired" | "error" | (string & {});
 
 // Formerly WaitlistForm: the Newsletter sign-up. The `#waitlist` anchor is
 // kept as an alias so old links keep working.
@@ -32,6 +37,7 @@ export function NewsletterForm({ available }: { available: boolean }) {
     "idle" | "loading" | "success" | "error" | "throttled" | "verification-failed"
   >("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [humanCheck, setHumanCheck] = useState<AltchaState>("unverified");
   const widgetRef = useRef<AltchaWidgetElement | null>(null);
 
   useEffect(() => {
@@ -42,17 +48,42 @@ export function NewsletterForm({ available }: { available: boolean }) {
     void import("altcha");
   }, []);
 
+  // The widget is invisible and solves on load, but `auto="onload"` fires
+  // only once: after a reset or an expiry it would sit unverified and keep
+  // Subscribe locked, so every fresh challenge is started from here.
+  const verifyWidget = useCallback(() => {
+    widgetRef.current?.verify().catch(() => {
+      // The widget reports failures through its own "error" state.
+    });
+  }, []);
+
   const resetWidget = () => {
     try {
       widgetRef.current?.reset();
+      verifyWidget();
     } catch {
       // A missing or not-yet-upgraded widget leaves nothing to reset.
     }
   };
 
+  // Stable, so React doesn't detach and re-attach the listener every render.
+  const attachWidget = useCallback((el: AltchaWidgetElement | null) => {
+    widgetRef.current = el;
+    if (!el) return;
+    const onStateChange = (e: Event) => {
+      const state = (e as CustomEvent<{ state: AltchaState }>).detail.state;
+      setHumanCheck(state);
+      if (state === "expired") verifyWidget();
+    };
+    el.addEventListener("statechange", onStateChange);
+    return () => el.removeEventListener("statechange", onStateChange);
+  }, [verifyWidget]);
+
+  const verified = humanCheck === "verified";
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email || !email.includes("@")) return;
+    if (!email || !email.includes("@") || !verified) return;
 
     setStatus("loading");
     // The widget drops its payload into a hidden `altcha` field inside
@@ -109,7 +140,11 @@ export function NewsletterForm({ available }: { available: boolean }) {
           </p>
           <button
             type="button"
-            onClick={() => setStatus("idle")}
+            onClick={() => {
+              // The form remounts with a fresh widget that solves again.
+              setHumanCheck("unverified");
+              setStatus("idle");
+            }}
             className="mt-3 text-xs font-mono text-emerald-700 hover:text-emerald-800 underline underline-offset-4"
           >
             Register another email
@@ -142,7 +177,10 @@ export function NewsletterForm({ available }: { available: boolean }) {
               </div>
               <button
                 type="submit"
-                disabled={!available || status === "loading"}
+                // Wait for the invisible human check: a submit made mid-PoW
+                // would be swallowed silently by native validation (the
+                // hidden widget checkbox is still `required`).
+                disabled={!available || status === "loading" || !verified}
                 title={available ? "Subscribe to the newsletter" : "Newsletter is coming soon!"}
                 className={
                   available
@@ -150,21 +188,26 @@ export function NewsletterForm({ available }: { available: boolean }) {
                     : "bg-slate-200 text-slate-400 border border-slate-300/70 font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 cursor-not-allowed select-none"
                 }
               >
-                <span>{available ? (status === "loading" ? "Subscribing…" : "Subscribe") : "Newsletter: Coming Soon!"}</span>
+                <span>
+                  {!available
+                    ? "Newsletter: Coming Soon!"
+                    : status === "loading"
+                      ? "Subscribing…"
+                      : humanCheck === "verifying"
+                        ? "Checking…"
+                        : "Subscribe"}
+                </span>
               </button>
             </div>
 
             {available && (
-              <div className="flex justify-center pt-1">
-                <altcha-widget
-                  ref={(el) => {
-                    widgetRef.current = el;
-                  }}
-                  challenge="/api/altcha/challenge"
-                  auto="onload"
-                  name="altcha"
-                />
-              </div>
+              <altcha-widget
+                ref={attachWidget}
+                challenge="/api/altcha/challenge"
+                auto="onload"
+                display="invisible"
+                name="altcha"
+              />
             )}
           </form>
 
@@ -178,10 +221,40 @@ export function NewsletterForm({ available }: { available: boolean }) {
             </p>
           )}
 
-          {/* Trust badge */}
-          <div className="text-[11px] text-slate-500 font-mono mt-3 flex items-center justify-center gap-1.5">
-            <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />
-            <span>Zero spam • Updates on releases &amp; benchmarks</span>
+          {/* Trust badge, doubling as the invisible human check's live status */}
+          <div
+            aria-live="polite"
+            className="text-[11px] text-slate-500 font-mono mt-3 flex items-center justify-center gap-1.5"
+          >
+            {!available ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />
+                <span>Zero spam • Updates on releases &amp; benchmarks</span>
+              </>
+            ) : humanCheck === "error" ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-red-400" />
+                <span>Human check failed •</span>
+                <button
+                  type="button"
+                  onClick={verifyWidget}
+                  className="text-blue-600 hover:text-blue-700 underline underline-offset-4"
+                >
+                  Retry
+                </button>
+              </>
+            ) : (
+              <>
+                {verified ? (
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                ) : (
+                  <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin" />
+                )}
+                <span>
+                  {verified ? "Human check passed" : "Running human check…"} • Zero spam • No tracking
+                </span>
+              </>
+            )}
           </div>
         </>
       )}
