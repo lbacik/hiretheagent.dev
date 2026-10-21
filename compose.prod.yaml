@@ -12,20 +12,29 @@ services:
       # Optional: with either one empty, the page renders no Umami tracker.
       UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-}
       UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
-      # Optional: with any one empty, the Newsletter form renders disabled ("Coming soon").
-      LISTMONK_URL: ${LISTMONK_URL:-}
-      LISTMONK_API_USER: ${LISTMONK_API_USER:-}
-      LISTMONK_API_TOKEN: ${LISTMONK_API_TOKEN:-}
-      LISTMONK_LIST_ID: ${LISTMONK_LIST_ID:-}
+      # Required: the Newsletter subscribes via self-hosted listmonk (see ADR 0001);
+      # a deploy without them fails here instead of silently serving "Coming soon".
+      LISTMONK_URL: ${LISTMONK_URL:?Newsletter needs LISTMONK_URL (see ADR 0001)}
+      LISTMONK_API_USER: ${LISTMONK_API_USER:?Newsletter needs LISTMONK_API_USER (see ADR 0001)}
+      LISTMONK_API_TOKEN: ${LISTMONK_API_TOKEN:?Newsletter needs LISTMONK_API_TOKEN (see ADR 0001)}
+      LISTMONK_LIST_ID: ${LISTMONK_LIST_ID:?Newsletter needs LISTMONK_LIST_ID (see ADR 0001)}
+      # Required: signs the self-hosted ALTCHA bot-check challenges (see ADR 0001);
+      # without it the Newsletter would silently fall back to "Coming soon".
+      ALTCHA_HMAC_KEY: ${ALTCHA_HMAC_KEY:?Newsletter needs ALTCHA_HMAC_KEY (see ADR 0001)}
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks: [proxy]
+    networks: [proxy, main]
 
 networks:
   proxy:
     name: ${PROXY_NETWORK:?}
+    external: true
+  # Shared internal network on rum: reaches self-hosted listmonk (see ADR 0001),
+  # the same network the paysubscriptions worker uses.
+  main:
+    name: main
     external: true

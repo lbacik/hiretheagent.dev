@@ -45,11 +45,19 @@ jobs:
       # Optional; leave unset to deploy without the Umami tracker.
       UMAMI_SCRIPT_URL: ${{ vars.UMAMI_SCRIPT_URL }}
       UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
+      # Newsletter (see ADR 0001): topology from variables, credentials from
+      # secrets. All five are required, unlike Umami.
+      LISTMONK_URL: ${{ vars.LISTMONK_URL }}
+      LISTMONK_API_USER: ${{ vars.LISTMONK_API_USER }}
+      LISTMONK_LIST_ID: ${{ vars.LISTMONK_LIST_ID }}
       # Secrets
       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
       DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
       REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      # Newsletter credentials (see ADR 0001): kept in secrets, never in variables.
+      LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
+      ALTCHA_HMAC_KEY: ${{ secrets.ALTCHA_HMAC_KEY }}
     steps:
       # The compose file deployed must be the one from the tag, not HEAD.
       - uses: actions/checkout@v7
@@ -59,7 +67,7 @@ jobs:
       - name: Pre-flight
         run: |
           missing=""
-          for v in PUBLIC_HOST LETSENCRYPT_EMAIL PROXY_NETWORK DEPLOY_SSH_KEY DEPLOY_SSH_KNOWN_HOSTS REGISTRY_USER REGISTRY_PASSWORD; do
+          for v in PUBLIC_HOST LETSENCRYPT_EMAIL PROXY_NETWORK DEPLOY_SSH_KEY DEPLOY_SSH_KNOWN_HOSTS REGISTRY_USER REGISTRY_PASSWORD LISTMONK_URL LISTMONK_API_USER LISTMONK_LIST_ID LISTMONK_API_TOKEN ALTCHA_HMAC_KEY; do
             [ -n "${!v}" ] || missing="$missing $v"
           done
           if [ -n "$missing" ]; then
