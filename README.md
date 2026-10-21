@@ -43,3 +43,26 @@ simple-coding-agent or this page. To add one:
 1. Append to the list in `src/lib/articles.ts`, using the canonical Medium
    URL without the `?source=…` query.
 2. Cut a Release.
+
+## Newsletter (listmonk)
+
+The Newsletter form subscribes visitors to a dedicated list on the
+self-hosted listmonk instance (see ADR 0001). The page's server calls
+listmonk synchronously from a Server Action; listmonk owns double opt-in
+from there. Configure it with four server-side env vars:
+
+```bash
+LISTMONK_URL=https://lists.example.com   # no trailing slash needed
+LISTMONK_API_USER=listmonk-api-user
+LISTMONK_API_TOKEN=…
+LISTMONK_LIST_ID=7                        # the Newsletter list's id
+```
+
+Behaviour to know:
+
+- All four vars must be set, otherwise the form renders its disabled
+  "Coming soon" state and no request is ever made.
+- A duplicate address (409) shows the same "check your inbox" success as
+  a new one; all failures show one generic "try again later" message.
+- Credentials never reach the browser: they are read from `process.env`
+  in server code only.
