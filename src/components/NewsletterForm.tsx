@@ -1,33 +1,80 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Check, CheckCircle2 } from "lucide-react";
 import { subscribeNewsletter } from "@/lib/newsletter-actions";
+
+declare module "react" {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      "altcha-widget": {
+        challenge?: string;
+        auto?: "off" | "onfocus" | "onload" | "onsubmit";
+        name?: string;
+        className?: string;
+        ref?: (el: AltchaWidgetElement | null) => void;
+      };
+    }
+  }
+}
+
+/** Minimal surface of the ALTCHA widget element this form uses. */
+export type AltchaWidgetElement = HTMLElement & {
+  reset: (newState?: string | null, err?: string | null) => void;
+};
 
 // Formerly WaitlistForm: the Newsletter sign-up. The `#waitlist` anchor is
 // kept as an alias so old links keep working.
 export function NewsletterForm({ available }: { available: boolean }) {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error" | "throttled">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error" | "throttled" | "verification-failed"
+  >("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const widgetRef = useRef<AltchaWidgetElement | null>(null);
+
+  useEffect(() => {
+    // Self-hosted widget, served from our own bundle — never a CDN, so the
+    // page loads no third-party script. Registers the <altcha-widget>
+    // custom element in the browser only (client components prerender on
+    // the server, where `window` does not exist).
+    void import("altcha");
+  }, []);
+
+  const resetWidget = () => {
+    try {
+      widgetRef.current?.reset();
+    } catch {
+      // A missing or not-yet-upgraded widget leaves nothing to reset.
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !email.includes("@")) return;
 
     setStatus("loading");
+    // The widget drops its payload into a hidden `altcha` field inside
+    // this form once the visitor completes the proof-of-work.
+    const payload = new FormData(e.currentTarget).get("altcha");
     let result: Awaited<ReturnType<typeof subscribeNewsletter>> | null = null;
     try {
-      result = await subscribeNewsletter(email);
+      result = await subscribeNewsletter(email, typeof payload === "string" ? payload : null);
     } catch {
       result = null;
     }
+    // Every submit consumes the challenge (a verified solution redeems
+    // only once), so hand the visitor a fresh one for the next attempt.
+    resetWidget();
     if (result?.ok) {
       setSubmittedEmail(email);
       setEmail("");
       setStatus("success");
     } else if (result?.throttled) {
       setStatus("throttled");
+    } else if (result?.verificationFailed) {
+      setStatus("verification-failed");
     } else {
       setStatus("error");
     }
@@ -72,45 +119,61 @@ export function NewsletterForm({ available }: { available: boolean }) {
         <>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-2 bg-white p-2 rounded-2xl border border-slate-300 shadow-xl shadow-slate-200/50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200"
+            className="flex flex-col gap-2 bg-white p-2 rounded-2xl border border-slate-300 shadow-xl shadow-slate-200/50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200"
           >
-            <div className="relative flex-1">
-              <label htmlFor="newsletter-email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="newsletter-email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                inputMode="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your-email@dev.io"
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="newsletter-email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your-email@dev.io"
+                  disabled={!available || status === "loading"}
+                  className="w-full h-full bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:text-slate-400 font-sans"
+                />
+              </div>
+              <button
+                type="submit"
                 disabled={!available || status === "loading"}
-                className="w-full h-full bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:text-slate-400 font-sans"
-              />
+                title={available ? "Subscribe to the newsletter" : "Newsletter is coming soon!"}
+                className={
+                  available
+                    ? "bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-70 disabled:cursor-wait"
+                    : "bg-slate-200 text-slate-400 border border-slate-300/70 font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 cursor-not-allowed select-none"
+                }
+              >
+                <span>{available ? (status === "loading" ? "Subscribing…" : "Subscribe") : "Newsletter: Coming Soon!"}</span>
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={!available || status === "loading"}
-              title={available ? "Subscribe to the newsletter" : "Newsletter is coming soon!"}
-              className={
-                available
-                  ? "bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-70 disabled:cursor-wait"
-                  : "bg-slate-200 text-slate-400 border border-slate-300/70 font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 cursor-not-allowed select-none"
-              }
-            >
-              <span>{available ? (status === "loading" ? "Subscribing…" : "Subscribe") : "Newsletter: Coming Soon!"}</span>
-            </button>
+
+            {available && (
+              <div className="flex justify-center pt-1">
+                <altcha-widget
+                  ref={(el) => {
+                    widgetRef.current = el;
+                  }}
+                  challenge="/api/altcha/challenge"
+                  auto="onload"
+                />
+              </div>
+            )}
           </form>
 
-          {(status === "error" || status === "throttled") && (
+          {(status === "error" || status === "throttled" || status === "verification-failed") && (
             <p role="alert" className="text-xs font-mono text-center text-red-600 mt-3">
               {status === "throttled"
                 ? "Too many attempts, please try again later."
-                : "Something went wrong, please try again later."}
+                : status === "verification-failed"
+                  ? "Verification failed, please try again."
+                  : "Something went wrong, please try again later."}
             </p>
           )}
 
