@@ -37,16 +37,16 @@ export const ALTCHA_COST = 200;
 
 const REDEEMED_TTL_MS = ALTCHA_CHALLENGE_TTL_S * 1000;
 
-/** Nonce → redemption timestamp. Pruned once the challenge has expired. */
+/** Nonce → challenge expiry timestamp (ms). Pruned once the challenge has expired. */
 const redeemedNonces = new Map<string, number>();
-
-export function isAltchaConfigured(env: Record<string, string | undefined> = process.env): boolean {
-  return (env.ALTCHA_HMAC_KEY?.trim().length ?? 0) > 0;
-}
 
 function readHmacKey(env: Record<string, string | undefined>): string | null {
   const key = env.ALTCHA_HMAC_KEY?.trim();
   return key ? key : null;
+}
+
+export function isAltchaConfigured(env: Record<string, string | undefined> = process.env): boolean {
+  return readHmacKey(env) !== null;
 }
 
 /**
@@ -102,11 +102,19 @@ function parseWidgetPayload(payload: string): WidgetPayload | null {
 }
 
 function pruneRedeemedNonces(now: number): void {
-  for (const [nonce, redeemedAt] of redeemedNonces) {
-    if (now - redeemedAt > REDEEMED_TTL_MS) {
+  for (const [nonce, expiresAtMs] of redeemedNonces) {
+    if (now > expiresAtMs) {
       redeemedNonces.delete(nonce);
     }
   }
+}
+
+function challengeExpiresAtMs(parameters: Challenge["parameters"], now: number): number {
+  const expiresAt = parameters.expiresAt;
+  if (typeof expiresAt === "number" && Number.isFinite(expiresAt)) {
+    return expiresAt * 1000;
+  }
+  return now + REDEEMED_TTL_MS;
 }
 
 /**
@@ -142,10 +150,11 @@ export async function verifyNewsletterChallenge(
   }
   // Record the nonce only after verification, so unverified payloads
   // cannot write to the store — and check-then-set is safe here because
-  // the whole check runs synchronously between awaits.
+  // the whole check runs synchronously between awaits. The stored value
+  // is the challenge's own expiry, so entries prune literally at expiry.
   if (verified) {
     if (redeemedNonces.has(nonce)) return false;
-    redeemedNonces.set(nonce, now);
+    redeemedNonces.set(nonce, challengeExpiresAtMs(parsed.challenge.parameters, now));
   }
   return verified;
 }

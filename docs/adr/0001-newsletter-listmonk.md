@@ -72,8 +72,8 @@ either.
   (missing, tampered, expired or replayed bot-check solution, refused
   before the throttle and listmonk), and the throttled "Too many
   attempts, please try again later" (per-IP sliding-window limit, checked
-  before any other work so a refused sign-up never reaches listmonk) —
-  and never listmonk details.
+  after verification and before listmonk, so a refused or throttled
+  sign-up never reaches listmonk) — and never listmonk details.
 - Server logs carry only the outcome class (credentials / transient /
   rejected / throttled / verification), never the subscriber address and
   never the client IP.

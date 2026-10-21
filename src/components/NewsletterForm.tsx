@@ -162,6 +162,7 @@ export function NewsletterForm({ available }: { available: boolean }) {
                   }}
                   challenge="/api/altcha/challenge"
                   auto="onload"
+                  name="altcha"
                 />
               </div>
             )}
