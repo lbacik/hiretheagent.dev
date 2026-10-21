@@ -1,6 +1,7 @@
 import { Check, Sparkles } from "lucide-react";
 import { Articles } from "./Articles";
 import { NewsletterForm } from "./NewsletterForm";
+import { isAltchaConfigured } from "@/lib/altcha";
 import { isNewsletterConfigured } from "@/lib/listmonk";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ChangeLog } from "./ChangeLog";
@@ -58,8 +59,8 @@ export function Hero() {
       {/* Quick Start Guide */}
       <QuickStart />
 
-      {/* Newsletter Form (disabled "Coming soon" state unless listmonk is configured) */}
-      <NewsletterForm available={isNewsletterConfigured()} />
+      {/* Newsletter Form (disabled "Coming soon" state unless listmonk and ALTCHA are configured) */}
+      <NewsletterForm available={isNewsletterConfigured() && isAltchaConfigured()} />
 
       {/* Change log */}
       <ChangeLog />

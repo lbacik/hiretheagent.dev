@@ -15,6 +15,12 @@ This page differs from that project in one structural way: it has no queue,
 worker or database. Whatever subscribes the visitor must therefore run
 inside the page's own server.
 
+The `paysubscriptions` reference also guards its form with reCAPTCHA.
+That would send visitor data to a third party on every page load, which
+this page avoids everywhere else (self-hosted Umami, no external scripts).
+The bot check here must therefore keep working without any third party
+either.
+
 ## Decision
 
 - Use the existing self-hosted listmonk for the Newsletter.
@@ -33,6 +39,26 @@ inside the page's own server.
   never stored anything.
 - When any `LISTMONK_*` env var is unset, the form keeps its disabled
   "Coming soon" state (same pattern as the Umami tracker).
+- Guard sign-ups with ALTCHA, the self-hosted open-source proof-of-work
+  challenge, instead of reCAPTCHA:
+  - The page's own server issues challenges signed with an HMAC key read
+    from server-side env (`ALTCHA_HMAC_KEY`); the key never reaches the
+    browser.
+  - The form embeds the ALTCHA widget served from our own bundle (the
+    `altcha` package, no CDN), which fetches a challenge from the
+    same-origin `GET /api/altcha/challenge` route and solves it in the
+    visitor's browser before submit.
+  - On submit the server verifies the solution (signature + expiry +
+    proof-of-work) **before** the per-IP throttle counts the attempt and
+    before listmonk is called. A missing, tampered, expired or
+    already-used solution is refused with a "Verification failed, please
+    try again" state and makes no listmonk request.
+  - A solved challenge redeems only once while it is valid (in-memory
+    store of redeemed challenges, pruned at expiry; single container,
+    same assumption as the throttle).
+  - Challenges expire after `ALTCHA_CHALLENGE_TTL_S` (5 minutes).
+  - `ALTCHA_HMAC_KEY` joins the "configured" gate: when it is unset, the
+    form stays in its "Coming soon" state.
 
 ## Consequences
 
@@ -40,13 +66,19 @@ inside the page's own server.
   cron. The trade-off is that a slow listmonk response holds the form's
   Server Action open; a 10s timeout bounds this and surfaces as the generic
   failure state.
-- The visitor sees exactly three states — "Almost done: check your inbox
+- The visitor sees exactly four states — "Almost done: check your inbox
   and click the confirmation link", "Something went wrong, please try
-  again later", and the throttled "Too many attempts, please try again
-  later" (per-IP sliding-window limit, checked before any other work so a
-  refused sign-up never reaches listmonk) — and never listmonk details.
+  again later", the verification "Verification failed, please try again."
+  (missing, tampered, expired or replayed bot-check solution, refused
+  before the throttle and listmonk), and the throttled "Too many
+  attempts, please try again later" (per-IP sliding-window limit, checked
+  after verification and before listmonk, so a refused or throttled
+  sign-up never reaches listmonk) — and never listmonk details.
 - Server logs carry only the outcome class (credentials / transient /
-  rejected / throttled), never the subscriber address and never the
-  client IP.
-- API credentials live only in server-side env and never reach the
-  browser.
+  rejected / throttled / verification), never the subscriber address and
+  never the client IP.
+- API credentials and the ALTCHA HMAC key live only in server-side env
+  and never reach the browser.
+- The page still loads no third-party script or request for the bot
+  check: the widget ships in our bundle and talks only to our own
+  challenge route.

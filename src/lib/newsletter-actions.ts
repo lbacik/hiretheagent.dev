@@ -3,22 +3,28 @@
 import { headers } from "next/headers";
 
 import { isValidNewsletterEmail, newsletterConfig, subscribeToListmonk } from "./listmonk";
+import { verifyNewsletterChallenge } from "./altcha";
 import {
   consumeNewsletterRateLimit,
   resolveNewsletterClientIp,
 } from "./newsletter-rate-limit";
 
-export type NewsletterResult = { ok: boolean; throttled?: boolean };
+export type NewsletterResult = { ok: boolean; throttled?: boolean; verificationFailed?: boolean };
 
 /**
  * Server Action behind the Newsletter form. Calls listmonk synchronously
  * (this page has no queue, worker or database) and reports back a bare
  * ok flag: the visitor sees one success state and one generic failure
  * state, never listmonk details. A throttled visitor additionally gets
- * the `throttled` flag for the distinct "too many attempts" message.
+ * the `throttled` flag for the distinct "too many attempts" message, and
+ * a visitor whose bot check fails gets `verificationFailed` for the
+ * distinct "verification failed, please try again" message.
  *
- * Sign-ups are throttled per source IP (sliding one-hour window) before
- * any other work, so a refused sign-up never reaches listmonk.
+ * The ALTCHA proof-of-work is verified first, before the per-IP throttle
+ * counts the attempt and before listmonk is called — a missing, tampered,
+ * expired or already-redeemed solution never reaches either. Sign-ups are
+ * then throttled per source IP (sliding one-hour window) before any other
+ * work, so a refused sign-up never reaches listmonk.
  *
  * Log lines carry only the outcome class, never the subscriber address
  * and never the client IP.
@@ -36,8 +42,19 @@ async function newsletterClientIp(): Promise<string> {
   }
 }
 
-export async function subscribeNewsletter(email: string): Promise<NewsletterResult> {
-  // Throttle first, before any other work — a refused sign-up must never
+export async function subscribeNewsletter(
+  email: string,
+  altchaPayload?: string | null,
+): Promise<NewsletterResult> {
+  // Bot check first, before the throttle counts the attempt and before
+  // listmonk is called — a missing, tampered, expired or already-redeemed
+  // solution never reaches either. The log line carries neither the
+  // address nor the payload.
+  if (!(await verifyNewsletterChallenge(altchaPayload))) {
+    console.error("newsletter subscribe rejected: verification failed, please try again");
+    return { ok: false, verificationFailed: true };
+  }
+  // Throttle next, before any other work — a refused sign-up must never
   // reach listmonk, or the form becomes a spam cannon. The log line carries
   // neither the address nor the IP.
   if (!consumeNewsletterRateLimit(await newsletterClientIp())) {

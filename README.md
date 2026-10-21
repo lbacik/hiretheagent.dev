@@ -49,20 +49,28 @@ simple-coding-agent or this page. To add one:
 The Newsletter form subscribes visitors to a dedicated list on the
 self-hosted listmonk instance (see ADR 0001). The page's server calls
 listmonk synchronously from a Server Action; listmonk owns double opt-in
-from there. Configure it with four server-side env vars:
+from there. Sign-ups are guarded by an ALTCHA proof-of-work bot check
+(see ADR 0001): the page issues its own challenges and verifies them
+locally, so no visitor data goes to any third party. Configure it with
+five server-side env vars:
 
 ```bash
 LISTMONK_URL=https://lists.example.com   # no trailing slash needed
 LISTMONK_API_USER=listmonk-api-user
 LISTMONK_API_TOKEN=…
 LISTMONK_LIST_ID=7                        # the Newsletter list's id
+ALTCHA_HMAC_KEY=…                         # signs the ALTCHA challenges (min. 16 chars recommended)
 ```
 
 Behaviour to know:
 
-- All four vars must be set, otherwise the form renders its disabled
+- All five vars must be set, otherwise the form renders its disabled
   "Coming soon" state and no request is ever made.
 - A duplicate address (409) shows the same "check your inbox" success as
   a new one; all failures show one generic "try again later" message.
-- Credentials never reach the browser: they are read from `process.env`
-  in server code only.
+- A submit without a valid ALTCHA solution (missing, tampered, expired,
+  or replayed) shows "Verification failed, please try again." and never
+  reaches the throttle or listmonk; each solved challenge works once.
+- Credentials and the HMAC key never reach the browser: they are read
+  from `process.env` in server code only. The widget ships in our own
+  bundle (no CDN) and talks only to our same-origin challenge route.
