@@ -12,6 +12,11 @@ services:
       # Optional: with either one empty, the page renders no Umami tracker.
       UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-}
       UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
+      # Optional: with any one empty, the Newsletter form renders disabled ("Coming soon").
+      LISTMONK_URL: ${LISTMONK_URL:-}
+      LISTMONK_API_USER: ${LISTMONK_API_USER:-}
+      LISTMONK_API_TOKEN: ${LISTMONK_API_TOKEN:-}
+      LISTMONK_LIST_ID: ${LISTMONK_LIST_ID:-}
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
       interval: 10s

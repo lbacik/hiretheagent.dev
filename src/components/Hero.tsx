@@ -1,6 +1,7 @@
 import { Check, Sparkles } from "lucide-react";
 import { Articles } from "./Articles";
-import { WaitlistForm } from "./WaitlistForm";
+import { NewsletterForm } from "./NewsletterForm";
+import { isNewsletterConfigured } from "@/lib/listmonk";
 import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ChangeLog } from "./ChangeLog";
 import { ActiveProjects } from "./ActiveProjects";
@@ -57,8 +58,8 @@ export function Hero() {
       {/* Quick Start Guide */}
       <QuickStart />
 
-      {/* Mailing & Waitlist Form */}
-      <WaitlistForm />
+      {/* Newsletter Form (disabled "Coming soon" state unless listmonk is configured) */}
+      <NewsletterForm available={isNewsletterConfigured()} />
 
       {/* Change log */}
       <ChangeLog />

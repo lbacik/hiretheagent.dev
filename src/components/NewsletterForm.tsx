@@ -2,8 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 import { Check, CheckCircle2 } from "lucide-react";
+import { subscribeNewsletter } from "@/lib/newsletter-actions";
 
-export function WaitlistForm() {
+// Formerly WaitlistForm: the Newsletter sign-up. The `#waitlist` anchor is
+// kept as an alias so old links keep working.
+export function NewsletterForm({ available }: { available: boolean }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -13,13 +16,19 @@ export function WaitlistForm() {
     if (!email || !email.includes("@")) return;
 
     setStatus("loading");
-
-    // Simulated subscription latency (can be linked to API route / Resend / Supabase in future sessions)
-    setTimeout(() => {
+    let ok = false;
+    try {
+      ok = (await subscribeNewsletter(email)).ok;
+    } catch {
+      ok = false;
+    }
+    if (ok) {
       setSubmittedEmail(email);
-      setStatus("success");
       setEmail("");
-    }, 700);
+      setStatus("success");
+    } else {
+      setStatus("error");
+    }
   };
 
   return (
@@ -43,10 +52,11 @@ export function WaitlistForm() {
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <h3 className="font-display font-bold text-slate-900 text-base">
-            You&apos;re subscribed to our newsletter!
+            Almost done: check your inbox and click the confirmation link
           </h3>
           <p className="text-xs text-slate-600 mt-1 font-mono">
-            We saved <span className="font-semibold text-slate-800">{submittedEmail}</span>. You&apos;ll receive updates on agent releases, benchmarks, and early access.
+            We sent a confirmation link to <span className="font-semibold text-slate-800">{submittedEmail}</span>.
+            You&apos;ll receive updates on agent releases, benchmarks, and early access once you confirm.
           </p>
           <button
             type="button"
@@ -76,19 +86,29 @@ export function WaitlistForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your-email@dev.io"
-                disabled
-                className="w-full h-full bg-slate-50/50 px-4 py-2.5 text-sm text-slate-400 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed font-sans"
+                disabled={!available || status === "loading"}
+                className="w-full h-full bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:text-slate-400 font-sans"
               />
             </div>
             <button
-              type="button"
-              disabled
-              title="Newsletter is coming soon!"
-              className="bg-slate-200 text-slate-400 border border-slate-300/70 font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 cursor-not-allowed select-none"
+              type="submit"
+              disabled={!available || status === "loading"}
+              title={available ? "Subscribe to the newsletter" : "Newsletter is coming soon!"}
+              className={
+                available
+                  ? "bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-70 disabled:cursor-wait"
+                  : "bg-slate-200 text-slate-400 border border-slate-300/70 font-mono text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 cursor-not-allowed select-none"
+              }
             >
-              <span>Newsletter: Coming Soon!</span>
+              <span>{available ? (status === "loading" ? "Subscribing…" : "Subscribe") : "Newsletter: Coming Soon!"}</span>
             </button>
           </form>
+
+          {status === "error" && (
+            <p role="alert" className="text-xs font-mono text-center text-red-600 mt-3">
+              Something went wrong, please try again later.
+            </p>
+          )}
 
           {/* Trust badge */}
           <div className="text-[11px] text-slate-500 font-mono mt-3 flex items-center justify-center gap-1.5">
