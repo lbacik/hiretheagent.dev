@@ -137,7 +137,7 @@ export function Roadmap() {
           </h3>
 
           <p className="mt-2.5 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-sans">
-            A dedicated read-only web dashboard monitoring{" "}
+            A dedicated web dashboard monitoring{" "}
             <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
               simple-coding-agent
             </code>{" "}
@@ -166,11 +166,7 @@ export function Roadmap() {
             <li className="flex items-start gap-2">
               <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
               <span>
-                Evidence inspection for every attempt — including stopped containers via{" "}
-                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-                  docker cp
-                </code>
-                .
+                Evidence inspection for every attempt — including stopped containers.
               </span>
             </li>
           </ul>
