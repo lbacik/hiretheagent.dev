@@ -28,3 +28,26 @@ body {
 .shadow-soft {
   box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
 }
+
+/* Brief pulse on the Newsletter form when a Roadmap "Get launch alert"
+   CTA lands visitors on it. Toggled from Roadmap's click handler. */
+@keyframes roadmap-alert-ring-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+  35% {
+    box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.35);
+  }
+}
+
+.roadmap-alert-ring {
+  border-color: #3b82f6 !important;
+  animation: roadmap-alert-ring-pulse 1.6s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-alert-ring {
+    animation: none;
+  }
+}
