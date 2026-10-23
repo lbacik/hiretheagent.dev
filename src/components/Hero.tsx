@@ -48,20 +48,29 @@ export function Hero() {
         </div>
 
         {/* Lab Dispatch: in-flight initiatives */}
-        <div className="mt-6 mx-auto max-w-2xl flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs sm:text-sm shadow-sm">
-          <span className="inline-flex items-center gap-1.5 font-mono font-semibold uppercase tracking-wider text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-0.5 rounded-md text-[11px]">
-            Lab Dispatch
-          </span>
-          <p className="min-w-0 flex-1 basis-48 text-left sm:text-center font-sans text-amber-900 leading-relaxed">
-            Now in the lab: multi-agent project orchestration (
-            <code className="font-mono font-semibold bg-amber-100/80 border border-amber-200 px-1.5 py-px rounded text-amber-950">
-              agent-forge
-            </code>
-            ) and the real-time Agent Dashboard.
-          </p>
+        <div className="mt-6 mx-auto max-w-2xl rounded-2xl border border-amber-300 bg-amber-50/70 p-3 sm:px-4 sm:py-3 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0 mt-1 sm:mt-0" aria-hidden="true" />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono font-bold uppercase tracking-wider text-amber-900 bg-amber-200/90 px-2 py-0.5 rounded text-[10px] leading-tight">
+                  LAB DISPATCH
+                </span>
+                <span className="font-mono font-bold text-xs text-slate-900">
+                  Active Development:
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-slate-600 font-sans leading-normal">
+                Multi-agent project orchestration{" "}
+                <span className="font-mono font-bold text-amber-900">(agent-forge)</span>{" "}
+                &amp; real-time{" "}
+                <span className="font-semibold text-slate-900">Agent Dashboard</span>.
+              </p>
+            </div>
+          </div>
           <a
             href="#roadmap"
-            className="inline-flex items-center gap-1 shrink-0 font-mono font-semibold text-amber-950 bg-amber-400/80 hover:bg-amber-400 active:bg-amber-500 border border-amber-500/60 px-3 py-1.5 rounded-lg transition-colors"
+            className="inline-flex items-center justify-center gap-1 shrink-0 font-mono text-xs font-semibold text-amber-50 bg-amber-900 hover:bg-amber-950 active:bg-amber-950 px-4 py-1.5 rounded-xl transition-colors shadow-sm self-start sm:self-center"
           >
             Roadmap <span aria-hidden="true">↓</span>
           </a>

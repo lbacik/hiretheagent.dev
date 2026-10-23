@@ -52,7 +52,7 @@ export function Header() {
             href="#roadmap"
             className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
           >
-            <Compass className="w-3.5 h-3.5" aria-hidden="true" />
+            <Compass className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
             <span>Roadmap</span>
           </a>
           <a
