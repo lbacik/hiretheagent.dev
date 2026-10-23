@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { BellRing, Boxes, Check, Radar } from "lucide-react";
+import { BellRing, Boxes, Check, Radar, Sparkles } from "lucide-react";
+
+function GithubIcon({ className = "w-3.5 h-3.5 fill-current" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
 
 // Upcoming initiatives showcased directly above the Newsletter form. Each
 // card ends in a "Get launch alert" CTA that scrolls to `#newsletter`,
@@ -12,23 +20,32 @@ export function Roadmap() {
       {/* Anchor alias for backward compatibility */}
       <span id="soon" className="scroll-mt-28 -top-28 relative block" aria-hidden="true" />
 
+      {/* Section Header */}
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-medium shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 text-blue-600" aria-hidden="true" />
+          <span>Coming Soon • Active Development</span>
+        </h2>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
         {/* Card 1: Multi-Worker Repository Pools (agent-forge#17) */}
         <article className="group relative bg-white/90 hover:bg-white border border-slate-200/90 hover:border-blue-400 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-200 flex flex-col">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              In Active Dev
-            </span>
             <Link
               href="https://github.com/lbacik/agent-forge"
               target="_blank"
               rel="noopener noreferrer"
-              title="agent-forge repository"
-              className="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 hover:text-blue-600 hover:border-blue-300 transition-colors"
+              title="agent-forge on GitHub"
+              className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
             >
-              agent-forge
+              <GithubIcon className="w-3.5 h-3.5 fill-current shrink-0" />
+              <span>agent-forge</span>
             </Link>
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              In Active Dev
+            </span>
           </div>
 
           <h3 className="font-mono font-bold text-base text-slate-900 flex items-center gap-1.5">
@@ -98,19 +115,20 @@ export function Roadmap() {
         {/* Card 2: Real-Time Fleet HUD (Agent Dashboard) */}
         <article className="group relative bg-white/90 hover:bg-white border border-slate-200/90 hover:border-blue-400 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-200 flex flex-col">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              In Active Dev
-            </span>
             <Link
               href="https://github.com/lbacik/agent-dashboard"
               target="_blank"
               rel="noopener noreferrer"
-              title="agent-dashboard repository"
-              className="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 hover:text-blue-600 hover:border-blue-300 transition-colors"
+              title="agent-dashboard on GitHub"
+              className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
             >
-              agent-dashboard
+              <GithubIcon className="w-3.5 h-3.5 fill-current shrink-0" />
+              <span>agent-dashboard</span>
             </Link>
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              In Active Dev
+            </span>
           </div>
 
           <h3 className="font-mono font-bold text-base text-slate-900 flex items-center gap-1.5">
