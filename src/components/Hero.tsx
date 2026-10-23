@@ -7,6 +7,7 @@ import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ChangeLog } from "./ChangeLog";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
+import { Roadmap } from "./Roadmap";
 
 export function Hero() {
   return (
@@ -58,6 +59,9 @@ export function Hero() {
 
       {/* Quick Start Guide */}
       <QuickStart />
+
+      {/* Roadmap: upcoming features, directly above the Newsletter form */}
+      <Roadmap />
 
       {/* Newsletter Form (disabled "Coming soon" state unless listmonk and ALTCHA are configured) */}
       <NewsletterForm available={isNewsletterConfigured() && isAltchaConfigured()} />
