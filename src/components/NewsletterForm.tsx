@@ -154,7 +154,7 @@ export function NewsletterForm({ available }: { available: boolean }) {
         <>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-2 bg-white p-2 rounded-2xl border border-slate-300 shadow-xl shadow-slate-200/50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200"
+            className="bg-white p-2 rounded-2xl border border-slate-300 shadow-xl shadow-slate-200/50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200"
           >
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative flex-1">
@@ -207,6 +207,7 @@ export function NewsletterForm({ available }: { available: boolean }) {
                 auto="onload"
                 display="invisible"
                 name="altcha"
+                className="contents"
               />
             )}
           </form>
