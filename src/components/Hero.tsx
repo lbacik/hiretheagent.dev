@@ -45,6 +45,26 @@ export function Hero() {
             <Sparkles className="w-3.5 h-3.5 text-blue-500" /> Bring your own LLM
           </span>
         </div>
+
+        {/* Lab Dispatch: in-flight initiatives */}
+        <div className="mt-6 mx-auto max-w-2xl flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs sm:text-sm shadow-sm">
+          <span className="inline-flex items-center gap-1.5 font-mono font-semibold uppercase tracking-wider text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-0.5 rounded-md text-[11px]">
+            Lab Dispatch
+          </span>
+          <p className="min-w-0 flex-1 basis-48 text-left sm:text-center font-sans text-amber-900 leading-relaxed">
+            Now in the lab: multi-agent project orchestration (
+            <code className="font-mono font-semibold bg-amber-100/80 border border-amber-200 px-1.5 py-px rounded text-amber-950">
+              agent-forge
+            </code>
+            ) and the real-time Agent Dashboard.
+          </p>
+          <a
+            href="#roadmap"
+            className="inline-flex items-center gap-1 shrink-0 font-mono font-semibold text-amber-950 bg-amber-400/80 hover:bg-amber-400 active:bg-amber-500 border border-amber-500/60 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Roadmap <span aria-hidden="true">↓</span>
+          </a>
+        </div>
       </div>
 
       {/* Articles row */}
