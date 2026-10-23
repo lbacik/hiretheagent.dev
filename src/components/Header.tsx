@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot } from "lucide-react";
+import { Bot, Compass } from "lucide-react";
 
 import { getArticles } from "@/lib/articles";
 
@@ -47,6 +47,13 @@ export function Header() {
             className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
           >
             <span>Projects</span>
+          </a>
+          <a
+            href="#roadmap"
+            className="text-slate-600 hover:text-blue-600 hidden sm:inline-flex items-center gap-1.5 transition-colors"
+          >
+            <Compass className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Roadmap</span>
           </a>
           <a
             href="#newsletter"
