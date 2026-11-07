@@ -7,6 +7,8 @@ import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ChangeLog } from "./ChangeLog";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
+import { AgentDashboardSection } from "./AgentDashboardSection";
+import { LabDispatch } from "./LabDispatch";
 import { Roadmap } from "./Roadmap";
 
 export function Hero() {
@@ -48,33 +50,7 @@ export function Hero() {
         </div>
 
         {/* Lab Dispatch: in-flight initiatives */}
-        <div className="mt-6 mx-auto max-w-2xl rounded-2xl border border-amber-300 bg-amber-50/70 p-3 sm:px-4 sm:py-3 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
-          <div className="flex items-start sm:items-center gap-3 min-w-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0 mt-1 sm:mt-0" aria-hidden="true" />
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono font-bold uppercase tracking-wider text-amber-900 bg-amber-200/90 px-2 py-0.5 rounded text-[10px] leading-tight">
-                  LAB DISPATCH
-                </span>
-                <span className="font-mono font-bold text-xs text-slate-900">
-                  Active Development:
-                </span>
-              </div>
-              <p className="mt-0.5 text-xs text-slate-600 font-sans leading-normal">
-                Multi-agent project orchestration{" "}
-                <span className="font-mono font-bold text-amber-900">(agent-forge)</span>{" "}
-                &amp; real-time{" "}
-                <span className="font-semibold text-slate-900">Agent Dashboard</span>.
-              </p>
-            </div>
-          </div>
-          <a
-            href="#roadmap"
-            className="inline-flex items-center justify-center gap-1 shrink-0 font-mono text-xs font-semibold text-amber-50 bg-amber-900 hover:bg-amber-950 active:bg-amber-950 px-4 py-1.5 rounded-xl transition-colors shadow-sm self-start sm:self-center"
-          >
-            Roadmap <span aria-hidden="true">↓</span>
-          </a>
-        </div>
+        <LabDispatch />
       </div>
 
       {/* Articles row */}
@@ -88,6 +64,9 @@ export function Hero() {
 
       {/* Quick Start Guide */}
       <QuickStart />
+
+      {/* Agent Dashboard (BETA): between Quick Start and Coming Soon (Roadmap) */}
+      <AgentDashboardSection />
 
       {/* Roadmap: upcoming features, directly above the Newsletter form */}
       <Roadmap />
