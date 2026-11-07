@@ -1,7 +1,8 @@
 // Captures the sticky version bar (closed bar and open "What's new" panel),
-// the Articles row (hero, Articles pills, top of the workflow panel) and the
-// Change log section (default view, Features and Fixes filters, and the list
-// after "Load more") at desktop (1280 px) and mobile (390 px) widths.
+// the Articles row (hero, Articles pills, top of the workflow panel), the
+// Agent Dashboard section and the Change log section (default view, Features
+// and Fixes filters, and the list after "Load more") at desktop (1280 px)
+// and mobile (390 px) widths.
 //
 // Targets a running server: `pnpm dev` first, then
 // `pnpm screenshots [url]` (default http://localhost:3000).
@@ -143,6 +144,34 @@ async function captureChangeLog(page, viewport) {
   console.log(`[${viewport.name}] captured after Load more.`);
 }
 
+// Scrolls #dashboard into view (top-aligned) and screenshots it. Logs
+// horizontal overflow so regressions (e.g. a too-wide filmstrip card) show
+// up as a non-zero value in CI output.
+async function captureDashboard(page, viewport) {
+  await page.goto(BASE_URL, { waitUntil: "networkidle0" });
+
+  const dashboard = await page.$("#dashboard");
+  if (!dashboard) {
+    console.log(`[${viewport.name}] dashboard section not rendered; skipping.`);
+    return;
+  }
+
+  await page.$eval("#dashboard", (el) =>
+    el.scrollIntoView({ block: "start", inline: "nearest" }),
+  );
+  await settle();
+  const overflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  );
+  console.log(`[${viewport.name}] dashboard horizontal overflow: ${overflow}px.`);
+  await page.screenshot({
+    path: path.join(OUT_DIR, `dashboard-${viewport.name}.png`),
+  });
+  console.log(`[${viewport.name}] captured dashboard.`);
+}
+
 const browser = await puppeteer.launch(launchOptions);
 try {
   await mkdir(OUT_DIR, { recursive: true });
@@ -155,6 +184,7 @@ try {
     });
     await captureVersionBar(page, viewport);
     await captureArticles(page, viewport);
+    await captureDashboard(page, viewport);
     await captureChangeLog(page, viewport);
     await page.close();
   }

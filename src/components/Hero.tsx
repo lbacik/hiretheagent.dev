@@ -7,6 +7,7 @@ import { InteractiveWorkflow } from "./InteractiveWorkflow";
 import { ChangeLog } from "./ChangeLog";
 import { ActiveProjects } from "./ActiveProjects";
 import { QuickStart } from "./QuickStart";
+import { AgentDashboardSection } from "./AgentDashboardSection";
 import { LabDispatch } from "./LabDispatch";
 import { Roadmap } from "./Roadmap";
 
@@ -63,6 +64,9 @@ export function Hero() {
 
       {/* Quick Start Guide */}
       <QuickStart />
+
+      {/* Agent Dashboard (BETA) */}
+      <AgentDashboardSection />
 
       {/* Roadmap: upcoming features, directly above the Newsletter form */}
       <Roadmap />
