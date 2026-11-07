@@ -59,7 +59,7 @@ export function Hero() {
       {/* Separator between the hero and the workflow panel */}
       <div aria-hidden="true" className="my-10 sm:my-14 mx-auto w-full max-w-xs h-px bg-slate-300" />
 
-      {/* Workflow Diagram Panel: default 0.5x, expands to 1.0x in-place */}
+      {/* Workflow Diagram Panel */}
       <InteractiveWorkflow />
 
       {/* Quick Start Guide */}

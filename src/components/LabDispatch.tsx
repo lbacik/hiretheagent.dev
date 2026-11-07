@@ -23,7 +23,7 @@ export function LabDispatch() {
         </div>
         <a
           href="#dashboard"
-          className="inline-flex items-center gap-1 shrink-0 font-mono text-xs font-bold text-emerald-800 hover:text-emerald-950"
+          className="inline-flex items-center justify-center gap-1 shrink-0 w-32 h-8 font-mono text-[11px] leading-none font-bold text-emerald-800 hover:text-emerald-950 bg-emerald-100/90 hover:bg-emerald-200/80 active:bg-emerald-200 border border-emerald-300/90 px-3 rounded-xl transition-colors shadow-xs self-start sm:self-center whitespace-nowrap"
         >
           See Dashboard <span aria-hidden="true">↓</span>
         </a>
@@ -65,7 +65,7 @@ export function LabDispatch() {
         </div>
         <a
           href="#roadmap"
-          className="inline-flex items-center justify-center gap-1 shrink-0 font-mono text-xs font-semibold text-amber-50 bg-amber-900 hover:bg-amber-950 active:bg-amber-950 px-4 py-1.5 rounded-xl transition-colors shadow-sm self-start sm:self-center"
+          className="inline-flex items-center justify-center gap-1 shrink-0 w-32 h-8 font-mono text-xs leading-none font-semibold text-amber-50 bg-amber-900 hover:bg-amber-950 active:bg-amber-950 px-3 rounded-xl transition-colors shadow-sm self-start sm:self-center whitespace-nowrap"
         >
           Roadmap <span aria-hidden="true">↓</span>
         </a>

@@ -18,7 +18,6 @@ import {
   RefreshCw,
   ListTodo,
   Maximize2,
-  Minimize2,
   Layers,
   User,
   Bot,
@@ -163,7 +162,6 @@ const STEPS: StepData[] = [
 export function InteractiveWorkflow() {
   // Default mode is Architecture Diagram ("blueprint") as requested
   const [viewMode, setViewMode] = useState<"blueprint" | "interactive">("blueprint");
-  const [diagramScale, setDiagramScale] = useState<"0.5x" | "1x">("0.5x");
   const [activeStep, setActiveStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSimulationHUDOpen, setIsSimulationHUDOpen] = useState(false);
@@ -258,16 +256,12 @@ export function InteractiveWorkflow() {
   };
 
   const currentStep = STEPS[activeStep];
-  const isExpandedWidth =
-    viewMode === "interactive" || (viewMode === "blueprint" && diagramScale === "1x");
 
   return (
     <div
       ref={workflowContainerRef}
       id="workflow"
-      className={`w-full mx-auto scroll-mt-32 transition-all duration-300 ease-in-out text-left ${
-        isExpandedWidth ? "max-w-5xl lg:max-w-6xl" : "max-w-xl sm:max-w-2xl"
-      }`}
+      className="w-full mx-auto scroll-mt-32 transition-all duration-300 ease-in-out text-left max-w-5xl lg:max-w-6xl"
     >
       {/* Frame: toolbar and content panel share one tinted surface */}
       <div className="rounded-3xl bg-blue-100/70 ring-1 ring-blue-200 shadow-soft p-2 sm:p-2.5">
@@ -284,10 +278,8 @@ export function InteractiveWorkflow() {
                 </span>
                 <span className="hidden sm:inline text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 text-slate-600 border border-slate-300/70 uppercase font-semibold">
                   {viewMode === "interactive"
-                    ? "Interactive Mode (1.0x)"
-                    : diagramScale === "1x"
-                    ? "Architecture Diagram (1.0x)"
-                    : "Architecture Diagram (0.5x)"}
+                    ? "Interactive Mode"
+                    : "Architecture Diagram"}
                 </span>
               </div>
               <p className="text-[11px] font-mono text-slate-600 hidden sm:block">
@@ -347,11 +339,11 @@ export function InteractiveWorkflow() {
                     setIsSimulationHUDOpen(false);
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 hover:border-slate-400 font-semibold transition-colors cursor-pointer"
-                  title="Collapse to compact diagram (0.5x size)"
+                  title="Switch to Architecture Diagram"
                 >
-                  <Minimize2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Compact Diagram</span>
-                  <span className="sm:hidden">0.5x</span>
+                  <Layers className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Architecture Diagram</span>
+                  <span className="sm:hidden">Diagram</span>
                 </button>
               </>
             ) : (
@@ -378,30 +370,6 @@ export function InteractiveWorkflow() {
                   <span className="hidden sm:inline">Interactive Mode</span>
                   <span className="sm:hidden">Interactive</span>
                   <ChevronRight className="w-3 h-3 ml-0.5 opacity-80" />
-                </button>
-
-                {/* x1 Button to enlarge the diagram itself */}
-                <button
-                  type="button"
-                  onClick={() => setDiagramScale((prev) => (prev === "0.5x" ? "1x" : "0.5x"))}
-                  className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
-                    diagramScale === "1x"
-                      ? "bg-slate-900 text-white border-slate-900 hover:bg-slate-800"
-                      : "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 hover:border-slate-400"
-                  }`}
-                  title={diagramScale === "1x" ? "Scale down diagram (0.5x)" : "Enlarge diagram (1x)"}
-                >
-                  {diagramScale === "1x" ? (
-                    <>
-                      <Minimize2 className="w-3.5 h-3.5 text-slate-300" />
-                      <span>x0.5</span>
-                    </>
-                  ) : (
-                    <>
-                      <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
-                      <span>x1</span>
-                    </>
-                  )}
                 </button>
               </>
             )}

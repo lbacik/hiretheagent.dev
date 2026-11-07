@@ -1,23 +1,18 @@
 "use client";
 
-// Agent Dashboard (BETA) section (layout C, dark slate carousel theme):
-// - 3-pillar feature cards
-// - Scroll-snap filmstrip screenshot carousel (Dark Slate-900 Contrast)
+// Agent Dashboard (BETA) section:
+// - Scroll-snap filmstrip screenshot carousel (Delivery Workflow blue-tinted panel theme)
 // - Vertical Docker Compose setup steps matching the QuickStart timeline layout.
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
-  BarChart3,
   Check,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   ExternalLink,
-  ShieldCheck,
-  Sliders,
-  X,
+  Pause,
+  Play,
 } from "lucide-react";
 
 const DASHBOARD_REPO_URL = "https://github.com/lbacik/agent-dashboard";
@@ -100,21 +95,21 @@ docker compose logs dashboard
 docker compose exec dashboard agent-dashboard account add alice \\
   --role controller --url https://dashboard.example.lan`;
 
-// Dark Slate-900 Contrast carousel theme.
+// Blue-tinted carousel theme matching the Delivery Workflow panel.
 const THEME = {
   wrapper:
-    "rounded-2xl bg-slate-900 p-4 sm:p-6 border border-slate-800 shadow-xl",
+    "rounded-3xl bg-blue-100/70 ring-1 ring-blue-200 shadow-soft p-4 sm:p-6",
   pillActive: "bg-blue-600 text-white font-bold shadow-xs",
-  pillInactive: "bg-slate-800 text-slate-300 hover:bg-slate-700",
-  hintText: "text-slate-400",
-  cardBase: "bg-slate-950",
-  cardActive: "border-blue-500 shadow-lg",
-  cardInactive: "border-slate-800 opacity-80 hover:opacity-100",
-  cardHeader: "bg-slate-900 border-b border-slate-800",
-  cardCode: "text-emerald-400 font-bold",
-  cardTitle: "text-slate-300",
-  imageStageBg: "bg-slate-100",
-  cardCaption: "bg-slate-950 text-slate-300",
+  pillInactive:
+    "bg-white/80 text-slate-700 hover:bg-white border border-blue-200/80",
+  cardBase: "bg-white",
+  cardActive: "border-slate-200/90 shadow-sm",
+  cardInactive: "border-slate-200/90 opacity-85 hover:opacity-100",
+  cardHeader: "bg-slate-100/90 border-b border-slate-200",
+  cardCode: "text-blue-700 font-bold",
+  cardTitle: "text-slate-700",
+  imageStageBg: "bg-[#f6f8fb]",
+  cardCaption: "bg-white border-t border-slate-200/80 text-slate-600",
 };
 
 function GithubIcon({
@@ -227,120 +222,43 @@ function Step({
   );
 }
 
-function SlideLightbox({
-  slide,
-  onClose,
-  onPrev,
-  onNext,
-}: {
-  slide: DashboardSlide | null;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
-  useEffect(() => {
-    if (!slide) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [slide, onClose]);
-
-  if (!slide) return null;
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={slide.title}
-      className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
-      onClick={onClose}
-    >
-      <div
-        className="relative max-w-6xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950 text-white">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-xs text-emerald-400 font-bold">
-              {slide.code}
-            </span>
-            <span className="text-slate-600">·</span>
-            <span className="font-display font-bold text-sm truncate">
-              {slide.title}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={onPrev}
-              aria-label="Previous screenshot"
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={onNext}
-              aria-label="Next screenshot"
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close preview"
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white transition-colors ml-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        <div className="bg-slate-950 p-2 sm:p-4 max-h-[78vh] overflow-auto flex items-start justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={slide.src}
-            alt={slide.title}
-            width={slide.width}
-            height={slide.height}
-            className="w-full h-auto rounded-lg border border-slate-800"
-          />
-        </div>
-        <div className="px-4 py-3 bg-slate-900 border-t border-slate-800 text-xs text-slate-300 font-sans text-left">
-          {slide.caption}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function AgentDashboardSection() {
   const [activeIdx, setActiveIdx] = useState(0);
-  const [lightboxSlide, setLightboxSlide] = useState<DashboardSlide | null>(
-    null,
-  );
+  const [isPlaying, setIsPlaying] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const scrollToSlide = (idx: number) => {
-    setActiveIdx(idx);
+  const scrollTrackTo = (idx: number) => {
     const container = trackRef.current;
     if (!container) return;
     const child = container.children[idx] as HTMLElement | undefined;
-    if (child) {
-      child.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    }
+    if (!child) return;
+    const targetLeft =
+      child.offsetLeft - (container.clientWidth - child.clientWidth) / 2;
+    container.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: "smooth",
+    });
   };
+
+  const scrollToSlide = (idx: number) => {
+    setActiveIdx(idx);
+    scrollTrackTo(idx);
+  };
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const timer = setTimeout(() => {
+      const nextIdx = (activeIdx + 1) % DASHBOARD_SLIDES.length;
+      setActiveIdx(nextIdx);
+      scrollTrackTo(nextIdx);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [activeIdx, isPlaying]);
 
   return (
     <section
       id="dashboard"
-      className="mt-20 sm:mt-28 max-w-5xl mx-auto scroll-mt-28 text-left"
+      className="mt-20 sm:mt-28 max-w-5xl mx-auto scroll-mt-28 text-left rounded-3xl border border-slate-200/90 bg-white/60 p-6 sm:p-10 shadow-xs"
     >
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -365,95 +283,16 @@ export function AgentDashboardSection() {
         </Link>
       </div>
 
-      {/* 3-Pillar Bento Top Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-xs">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center mb-3">
-            <BarChart3 className="w-4 h-4" />
-          </div>
-          <h3 className="font-mono font-bold text-sm text-slate-900">
-            1. Fleet Overview &amp; Costs
-          </h3>
-          <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-            Discovers containers by image label, polls{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              agentctl telemetry --json
-            </code>
-            , and charts outcomes &amp; USD cost across{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              24h–90d
-            </code>{" "}
-            ranges.
-          </p>
-        </div>
-
-        <div className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-xs">
-          <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mb-3">
-            <Sliders className="w-4 h-4" />
-          </div>
-          <h3 className="font-mono font-bold text-sm text-slate-900">
-            2. Two-Step Control &amp; Audit
-          </h3>
-          <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-            Review &amp; confirm{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              stop
-            </code>
-            ,{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              resume
-            </code>
-            ,{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              handoff now
-            </code>
-            , and{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              next issue &lt;n&gt;
-            </code>{" "}
-            with idempotent request IDs and{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              control-audit.jsonl
-            </code>
-            .
-          </p>
-        </div>
-
-        <div className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-xs">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mb-3">
-            <ShieldCheck className="w-4 h-4" />
-          </div>
-          <h3 className="font-mono font-bold text-sm text-slate-900">
-            3. Stopped Logs &amp; LAN Mode
-          </h3>
-          <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-            Reads stopped container logs &amp; evidence via{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              docker cp
-            </code>
-            . Optional LAN mode adds{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              viewer
-            </code>{" "}
-            /{" "}
-            <code className="font-mono text-[11px] bg-slate-100 px-1 rounded">
-              controller
-            </code>{" "}
-            Operator accounts.
-          </p>
-        </div>
-      </div>
-
-      {/* Horizontal Scroll-Snap Filmstrip Carousel (Dark Slate-900 Contrast) */}
+      {/* Horizontal Scroll-Snap Filmstrip Carousel */}
       <div className={THEME.wrapper}>
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex items-center justify-center gap-2 flex-wrap mb-4">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             {DASHBOARD_SLIDES.map((s, idx) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => scrollToSlide(idx)}
-                className={`px-3 py-1 rounded-full font-mono text-xs transition-all ${
+                className={`px-3 py-1 rounded-full font-mono text-xs transition-all cursor-pointer ${
                   activeIdx === idx ? THEME.pillActive : THEME.pillInactive
                 }`}
               >
@@ -461,9 +300,26 @@ export function AgentDashboardSection() {
               </button>
             ))}
           </div>
-          <span className={`text-[11px] font-mono ${THEME.hintText}`}>
-            Click any screen to zoom
-          </span>
+
+          <button
+            type="button"
+            onClick={() => setIsPlaying((prev) => !prev)}
+            aria-label={isPlaying ? "Pause carousel" : "Play carousel"}
+            title={isPlaying ? "Pause auto-play (5s)" : "Resume auto-play (5s)"}
+            className="lg:absolute lg:right-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-xs font-semibold transition-all cursor-pointer bg-white/80 text-slate-700 hover:bg-white border border-blue-200/80 shadow-2xs"
+          >
+            {isPlaying ? (
+              <>
+                <Pause className="w-3 h-3 fill-current text-blue-600" />
+                <span>Pause</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3 h-3 fill-current text-emerald-600" />
+                <span>Play</span>
+              </>
+            )}
+          </button>
         </div>
 
         <div
@@ -473,11 +329,8 @@ export function AgentDashboardSection() {
           {DASHBOARD_SLIDES.map((s, idx) => (
             <div
               key={s.id}
-              onClick={() => {
-                setActiveIdx(idx);
-                setLightboxSlide(s);
-              }}
-              className={`snap-center shrink-0 w-[88%] sm:w-[78%] rounded-xl overflow-hidden border transition-all cursor-zoom-in flex flex-col ${
+              onClick={() => scrollToSlide(idx)}
+              className={`snap-center shrink-0 w-[88%] sm:w-[78%] rounded-xl overflow-hidden border transition-all cursor-pointer flex flex-col ${
                 THEME.cardBase
               } ${activeIdx === idx ? THEME.cardActive : THEME.cardInactive}`}
             >
@@ -601,26 +454,6 @@ export function AgentDashboardSection() {
           />
         </ol>
       </div>
-
-      <SlideLightbox
-        slide={lightboxSlide}
-        onClose={() => setLightboxSlide(null)}
-        onPrev={() => {
-          const idx = DASHBOARD_SLIDES.findIndex(
-            (s) => s.id === lightboxSlide?.id,
-          );
-          const next =
-            (idx - 1 + DASHBOARD_SLIDES.length) % DASHBOARD_SLIDES.length;
-          setLightboxSlide(DASHBOARD_SLIDES[next]);
-        }}
-        onNext={() => {
-          const idx = DASHBOARD_SLIDES.findIndex(
-            (s) => s.id === lightboxSlide?.id,
-          );
-          const next = (idx + 1) % DASHBOARD_SLIDES.length;
-          setLightboxSlide(DASHBOARD_SLIDES[next]);
-        }}
-      />
     </section>
   );
 }

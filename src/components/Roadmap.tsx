@@ -137,7 +137,7 @@ export function Roadmap() {
           </h3>
 
           <p className="mt-2.5 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-sans">
-            A new type of containerised autonomous Worker ({" "}
+            A new type of containerised autonomous Worker (
             <Link
               href="https://github.com/lbacik/coding-agent"
               target="_blank"
@@ -146,47 +146,34 @@ export function Roadmap() {
             >
               lbacik/coding-agent
             </Link>
-            ) that claims issues from a Target Repository, implements them with the{" "}
-            <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-              /implement
-            </code>{" "}
-            Skill Bundle, and delivers a verified Pull Request.
+            ) that claims issues from a Target Repository, executes a graph-driven workflow, and delivers a
+            verified Pull Request.
           </p>
 
           <ul className="mt-4 space-y-2 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-sans">
             <li className="flex items-start gap-2">
               <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
               <span>
-                Supported Toolchain Matrix (Python 3.13/uv, PHP 8.4/Composer, Node 22/pnpm) in a
-                read-only rootfs container.
+                Built on{" "}
+                <Link
+                  href="https://www.langchain.com/langgraph"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2 decoration-blue-200 hover:decoration-blue-400 transition-colors"
+                >
+                  LangGraph
+                </Link>{" "}
+                for stateful, graph-based agent execution.
               </span>
             </li>
             <li className="flex items-start gap-2">
               <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
               <span>
-                Build-time{" "}
+                Agent workflow configurable via a{" "}
                 <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-                  agent verify-skill-bundle
+                  YAML
                 </code>{" "}
-                and live{" "}
-                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-                  provider-check
-                </code>{" "}
-                capability assertions.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
-              <span>
-                Contract-driven validation ({" "}
-                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-                  agent validate
-                </code>
-                ) against{" "}
-                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-                  docs/agents/project-profile.yml
-                </code>{" "}
-                with JUnit XML test evidence.
+                file.
               </span>
             </li>
             <li className="flex items-start gap-2">
