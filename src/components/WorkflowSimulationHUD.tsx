@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useEffectEvent, useRef } from "react";
+import { narrationWatchdogMs, pickNarratorVoice } from "@/lib/narrator-voice";
 import {
   Play,
   Pause,
@@ -96,6 +97,34 @@ export function WorkflowSimulationHUD({
   const initialPauseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const speechWatchdogRef = useRef<NodeJS.Timeout | null>(null);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+
+  // Chrome loads voices asynchronously: getVoices() is often empty until
+  // `voiceschanged` fires. Load them up front so stage 1 uses the same voice
+  // as the later stages instead of the system default.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const synth = window.speechSynthesis;
+    const loadVoices = () => {
+      voicesRef.current = synth.getVoices();
+    };
+    loadVoices();
+    synth.addEventListener("voiceschanged", loadVoices);
+    return () => synth.removeEventListener("voiceschanged", loadVoices);
+  }, []);
+
+  // Parent callbacks are read through an Effect Event so a parent re-render
+  // (new inline callbacks) never restarts the playback effect and cuts speech.
+  const completeStage = useEffectEvent((completedStep: number) => {
+    if (completedStep < WORKFLOW_STAGES_NARRATION.length - 1) {
+      onStepChange(completedStep + 1);
+    } else {
+      // Stage 4 completed: NO LOOP. Close popup and end simulation.
+      onTogglePlay(false);
+      onClose();
+    }
+  });
 
   const currentStage = WORKFLOW_STAGES_NARRATION[activeStep] || WORKFLOW_STAGES_NARRATION[0];
   const isLastStage = activeStep === WORKFLOW_STAGES_NARRATION.length - 1;
@@ -112,6 +141,10 @@ export function WorkflowSimulationHUD({
     if (pauseTimerRef.current) {
       clearTimeout(pauseTimerRef.current);
       pauseTimerRef.current = null;
+    }
+    if (speechWatchdogRef.current) {
+      clearTimeout(speechWatchdogRef.current);
+      speechWatchdogRef.current = null;
     }
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
@@ -152,20 +185,18 @@ export function WorkflowSimulationHUD({
     const handleStageCompleted = () => {
       setIsWaitingPostPause(false);
       setStepProgress(0);
-
-      if (activeStep < WORKFLOW_STAGES_NARRATION.length - 1) {
-        // Proceed to next stage
-        onStepChange(activeStep + 1);
-      } else {
-        // Stage 4 completed: NO LOOP. Close popup and end simulation.
-        onTogglePlay(false);
-        onClose();
-      }
+      completeStage(activeStep);
     };
 
-    // Trigger 5-second pause countdown after speech ends
+    // Trigger 5-second pause countdown after speech ends. Guarded: onend,
+    // onerror and the watchdog may all fire for the same utterance.
     const startPostSpeechPause = () => {
+      if (speechFinished) return;
       speechFinished = true;
+      if (speechWatchdogRef.current) {
+        clearTimeout(speechWatchdogRef.current);
+        speechWatchdogRef.current = null;
+      }
       pauseStartTime = Date.now();
       setIsSpeaking(false);
       setIsWaitingPostPause(true);
@@ -216,22 +247,12 @@ export function WorkflowSimulationHUD({
       utterance.rate = 1.02;
       utterance.pitch = 1.0;
 
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        const enVoice =
-          voices.find(
-            (v) =>
-              v.lang.startsWith("en") &&
-              (v.name.includes("Natural") ||
-                v.name.includes("Google") ||
-                v.name.includes("Samantha") ||
-                v.name.includes("Daniel") ||
-                v.name.includes("Alex"))
-          ) || voices.find((v) => v.lang.startsWith("en"));
-
-        if (enVoice) {
-          utterance.voice = enVoice;
-        }
+      if (voicesRef.current.length === 0) {
+        voicesRef.current = window.speechSynthesis.getVoices();
+      }
+      const enVoice = pickNarratorVoice(voicesRef.current);
+      if (enVoice) {
+        utterance.voice = enVoice;
       }
 
       utterance.onstart = () => {
@@ -246,13 +267,21 @@ export function WorkflowSimulationHUD({
         startPostSpeechPause();
       };
 
+      // Watchdog: if the engine never reports the end (stuck audio output,
+      // remote voice cut-off), stop waiting and continue the walkthrough.
+      speechWatchdogRef.current = setTimeout(() => {
+        speechWatchdogRef.current = null;
+        window.speechSynthesis.cancel();
+        startPostSpeechPause();
+      }, narrationWatchdogMs(estimatedSpeechMs));
+
       window.speechSynthesis.speak(utterance);
     }, initialPauseMs);
 
     return () => {
       clearTimersAndSpeech();
     };
-  }, [activeStep, isPlaying, isOpen, isMuted, onStepChange, onTogglePlay, onClose]);
+  }, [activeStep, isPlaying, isOpen, isMuted]);
 
   // Handle Play/Pause
   const handlePlayPause = () => {
