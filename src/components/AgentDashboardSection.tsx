@@ -34,9 +34,9 @@ export const DASHBOARD_SLIDES: DashboardSlide[] = [
     code: "01 // FLEET OVERVIEW",
     title: "Fleet Overview & Cost Analytics",
     shortTitle: "Fleet Overview",
-    src: "/assets/dashboard/fleet-overview.png",
-    width: 2358,
-    height: 1752,
+    src: "/assets/dashboard/fleet-overview.webp",
+    width: 1600,
+    height: 1189,
     caption:
       "Collapsible /overview panel charting attempt outcomes (complete, incomplete, handoff, other) and USD cost per instance across 24h / 7d / 30d / 90d / All presets plus a 90-day activity strip.",
   },
@@ -45,9 +45,9 @@ export const DASHBOARD_SLIDES: DashboardSlide[] = [
     code: "02 // OPERATIONS MATRIX",
     title: "Real-Time Operations Matrix",
     shortTitle: "Operations Matrix",
-    src: "/assets/dashboard/operations-matrix.png",
-    width: 2342,
-    height: 1034,
+    src: "/assets/dashboard/operations-matrix.webp",
+    width: 1600,
+    height: 707,
     caption:
       "Automatic container discovery by image label with live telemetry polling via docker exec <container> agentctl telemetry --json. Filter instant tiles for Online Units, Operator Alerts, Active Executions, and Offline Units.",
   },
@@ -56,9 +56,9 @@ export const DASHBOARD_SLIDES: DashboardSlide[] = [
     code: "03 // UNIT COCKPIT",
     title: "Unit Cockpit & 2-Step Control Console",
     shortTitle: "Unit Cockpit",
-    src: "/assets/dashboard/unit-cockpit.png",
-    width: 2344,
-    height: 1676,
+    src: "/assets/dashboard/unit-cockpit.webp",
+    width: 1600,
+    height: 1145,
     caption:
       "Per-instance drill-down pairing the 2-step Control Console (stop, stop --after N, resume, handoff now, next issue <n>) with live tool execution activity, intake status, and current/last attempt telemetry.",
   },
@@ -67,9 +67,9 @@ export const DASHBOARD_SLIDES: DashboardSlide[] = [
     code: "04 // ATTEMPT PROGRESS",
     title: "Attempt Progress & Offline Evidence Log",
     shortTitle: "Attempt Progress",
-    src: "/assets/dashboard/attempt-progress.png",
-    width: 2338,
-    height: 1340,
+    src: "/assets/dashboard/attempt-progress.webp",
+    width: 1600,
+    height: 918,
     caption:
       "Plots turns and token budget over elapsed time against the configured soft threshold, hard ceiling, and timeout — above a server-paged event stream with inline Evidence file previews and downloads.",
   },
@@ -232,8 +232,16 @@ export function AgentDashboardSection() {
     if (!container) return;
     const child = container.children[idx] as HTMLElement | undefined;
     if (!child) return;
+    // Measure the slide against the track itself: offsetLeft is relative
+    // to the nearest positioned ancestor (here <body>), which overshoots
+    // and lets snap-mandatory land on the next slide.
+    const childLeft =
+      child.getBoundingClientRect().left -
+      container.getBoundingClientRect().left -
+      container.clientLeft +
+      container.scrollLeft;
     const targetLeft =
-      child.offsetLeft - (container.clientWidth - child.clientWidth) / 2;
+      childLeft - (container.clientWidth - child.clientWidth) / 2;
     container.scrollTo({
       left: Math.max(0, targetLeft),
       behavior: "smooth",
@@ -351,6 +359,8 @@ export function AgentDashboardSection() {
                   alt={s.title}
                   width={s.width}
                   height={s.height}
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  decoding="async"
                   className="w-full h-full object-contain object-top"
                 />
               </div>
