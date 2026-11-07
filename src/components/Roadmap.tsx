@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BellRing, Boxes, Check, Radar, Sparkles } from "lucide-react";
+import { BellRing, Bot, Boxes, Check, Sparkles } from "lucide-react";
 
 function GithubIcon({ className = "w-3.5 h-3.5 fill-current" }: { className?: string }) {
   return (
@@ -112,18 +112,18 @@ export function Roadmap() {
           </div>
         </article>
 
-        {/* Card 2: Real-Time Fleet HUD (Agent Dashboard) */}
+        {/* Card 2: Coding Agent 'Rex' (lbacik/coding-agent) */}
         <article className="group relative bg-white/90 hover:bg-white border border-slate-200/90 hover:border-blue-400 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-200 flex flex-col">
           <div className="flex items-center justify-between gap-2 mb-3">
             <Link
-              href="https://github.com/lbacik/agent-dashboard"
+              href="https://github.com/lbacik/coding-agent"
               target="_blank"
               rel="noopener noreferrer"
-              title="agent-dashboard on GitHub"
+              title="coding-agent on GitHub"
               className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
             >
               <GithubIcon className="w-3.5 h-3.5 fill-current shrink-0" />
-              <span>agent-dashboard</span>
+              <span>coding-agent</span>
             </Link>
             <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
@@ -132,42 +132,66 @@ export function Roadmap() {
           </div>
 
           <h3 className="font-mono font-bold text-base text-slate-900 flex items-center gap-1.5">
-            <Radar className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0 transition-colors" />
-            <span>Real-Time Fleet HUD</span>
+            <Bot className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0 transition-colors" />
+            <span>Coding Agent &apos;Rex&apos;</span>
           </h3>
 
           <p className="mt-2.5 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-sans">
-            A dedicated web dashboard monitoring{" "}
+            A new type of containerised autonomous Worker ({" "}
+            <Link
+              href="https://github.com/lbacik/coding-agent"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2 decoration-blue-200 hover:decoration-blue-400 transition-colors"
+            >
+              lbacik/coding-agent
+            </Link>
+            ) that claims issues from a Target Repository, implements them with the{" "}
             <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-              simple-coding-agent
+              /implement
             </code>{" "}
-            containers on a Docker host — the Agent Dashboard.
+            Skill Bundle, and delivers a verified Pull Request.
           </p>
 
           <ul className="mt-4 space-y-2 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-sans">
             <li className="flex items-start gap-2">
               <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
-              <span>Automatic container discovery by label — no manual registration.</span>
+              <span>
+                Supported Toolchain Matrix (Python 3.13/uv, PHP 8.4/Composer, Node 22/pnpm) in a
+                read-only rootfs container.
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
               <span>
-                Live telemetry polling via{" "}
+                Build-time{" "}
                 <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
-                  agentctl telemetry --json
-                </code>
-                .
+                  agent verify-skill-bundle
+                </code>{" "}
+                and live{" "}
+                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
+                  provider-check
+                </code>{" "}
+                capability assertions.
               </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
-              <span>Fleet overview of outcomes &amp; costs (24h–90d) plus per-attempt event log.</span>
             </li>
             <li className="flex items-start gap-2">
               <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
               <span>
-                Evidence inspection for every attempt — including stopped containers.
+                Contract-driven validation ({" "}
+                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
+                  agent validate
+                </code>
+                ) against{" "}
+                <code className="font-mono text-[11px] sm:text-xs bg-slate-100 border border-slate-200 px-1.5 py-px rounded text-slate-800">
+                  docs/agents/project-profile.yml
+                </code>{" "}
+                with JUnit XML test evidence.
               </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Check className="w-3.5 h-3.5 mt-0.5 text-emerald-500 stroke-[3] shrink-0" />
+              <span>Full Attempt graph with Run Ledger persistence and redacted model transcripts.</span>
             </li>
           </ul>
 
