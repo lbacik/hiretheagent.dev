@@ -1,11 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  ExternalLink,
+  Layers,
+  Terminal,
+  Wand2,
+} from "lucide-react";
 
 const AGENT_FORGE_URL = "https://github.com/lbacik/agent-forge";
 const AGENTCTL_PREFIX =
   "docker compose exec --user agent agent /usr/local/bin/agentctl";
+const AGENTCTL_POOL_PREFIX =
+  "docker compose exec --user agent <service> /usr/local/bin/agentctl";
 
 function useCopy() {
   const [copied, setCopied] = useState(false);
@@ -148,11 +158,13 @@ function InlineCode({ children }: { children: React.ReactNode }) {
 function Step({
   number,
   title,
+  badge,
   explanation,
   commands,
 }: {
   number: number;
   title: string;
+  badge?: React.ReactNode;
   explanation: React.ReactNode;
   commands: React.ReactNode;
 }) {
@@ -166,9 +178,12 @@ function Step({
       </span>
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-8">
         <div className="min-w-0">
-          <h3 className="font-display font-bold text-lg text-slate-950">
-            {title}
-          </h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-display font-bold text-lg text-slate-950">
+              {title}
+            </h3>
+            {badge}
+          </div>
           <div className="mt-2 text-sm text-slate-600 leading-relaxed space-y-2">
             {explanation}
           </div>
@@ -190,26 +205,29 @@ const COMPOSE_COMMANDS: CommandRow[] = [
   },
   {
     command: "docker compose build",
-    description: "Build the image. Rebuild after profile or Dockerfile changes.",
+    description:
+      "Build the shared image once (via the primary agent service). Rebuild after profile or Dockerfile changes.",
   },
   {
     command: "docker compose up -d",
     description:
-      "Start the agent. Run it again after a rebuild to apply the new image.",
+      "Start the instance (or all Workers in the Pool). Run again after a rebuild to apply the new image.",
   },
   {
     command: "docker compose ps",
-    description: "Check that the container is running.",
+    description: "Check that all Worker containers are running.",
   },
   {
     command: "docker compose logs --tail=100 -f",
-    description: "Follow the startup logs.",
+    description:
+      "Follow the startup logs (pass a service name for one Worker).",
   },
   {
     command: "docker compose down",
     description: (
       <>
-        Stop the agent. The <InlineCode>agent_data</InlineCode> volume is kept.
+        Stop all Workers. Named volumes (<InlineCode>agent_data</InlineCode>,{" "}
+        <InlineCode>data_2..N</InlineCode>) are kept.
       </>
     ),
   },
@@ -217,11 +235,87 @@ const COMPOSE_COMMANDS: CommandRow[] = [
     command: "docker compose down -v",
     description: (
       <>
-        Also deletes <InlineCode>agent_data</InlineCode>: the repository
-        checkout, state and attempt logs.
+        Deletes <InlineCode>agent_data</InlineCode> and{" "}
+        <InlineCode>data_2..N</InlineCode> for every Worker: repository
+        checkouts, state and attempt logs.
       </>
     ),
     destructive: true,
+  },
+];
+
+const MANAGE_POOL_SKILL_COMMANDS: CommandRow[] = [
+  {
+    command: 'claude "/manage-pool add a worker to agent-repository"',
+    description: (
+      <>
+        Add <InlineCode>agent-&lt;n&gt;</InlineCode> with its own{" "}
+        <InlineCode>data_&lt;n&gt;</InlineCode> volume and{" "}
+        <InlineCode>WORKER_ID</InlineCode>, then start only the new container.
+      </>
+    ),
+  },
+  {
+    command: 'claude "/manage-pool remove worker 2 from agent-repository"',
+    description: (
+      <>
+        Drain <InlineCode>agent-2</InlineCode>, verify it holds no active{" "}
+        <InlineCode>claimed-by:*</InlineCode> Claim, then stop and remove it.
+      </>
+    ),
+  },
+  {
+    command: 'claude "/manage-pool stop agent-repository"',
+    description:
+      "Drain active attempts and stop issue intake across the whole Pool (or a single named Worker).",
+  },
+  {
+    command: 'claude "/manage-pool resume agent-repository"',
+    description:
+      "Bring stopped Worker containers back up and resume issue intake.",
+  },
+];
+
+const MANAGE_POOL_CLI_COMMANDS: CommandRow[] = [
+  {
+    command:
+      ".agents/skills/debug-agent/scripts/pool-status.sh --github repository",
+    description: (
+      <>
+        Read-only overview of every Worker: container state, intake, active
+        issue, and live <InlineCode>claimed-by:&lt;worker-id&gt;</InlineCode>{" "}
+        labels.
+      </>
+    ),
+  },
+  {
+    command: "docker compose up -d agent-2",
+    description: (
+      <>
+        Start only the newly added Worker <InlineCode>agent-2</InlineCode>{" "}
+        without interrupting running Workers.
+      </>
+    ),
+  },
+  {
+    command:
+      "docker compose exec -u agent agent-2 /usr/local/bin/agentctl stop",
+    description: (
+      <>
+        Drain <InlineCode>agent-2</InlineCode>: lets its active attempt finish
+        and stops new issue intake.
+      </>
+    ),
+  },
+  {
+    command: "docker compose stop agent-2 && docker compose rm -f agent-2",
+    description: (
+      <>
+        Stop and remove a drained Worker container once its{" "}
+        <InlineCode>status</InlineCode> shows{" "}
+        <InlineCode>active_attempt: none</InlineCode>.
+      </>
+    ),
   },
 ];
 
@@ -236,7 +330,7 @@ const AGENTCTL_COMMANDS: CommandRow[] = [
   },
   {
     command: "stop",
-    description: "Stop picking up new issues.",
+    description: "Stop picking up new issues (drains the Worker cleanly).",
   },
   {
     command: "resume",
@@ -250,12 +344,8 @@ const AGENTCTL_COMMANDS: CommandRow[] = [
     command: "next issue <issue-number>",
     description: (
       <>
-        Make this issue the next one the agent claims. It takes the issue{" "}
-        <strong>number</strong>, not the URL: for{" "}
-        <InlineCode>&lt;github-issue-url&gt;</InlineCode> ending in{" "}
-        <InlineCode>/issues/42</InlineCode>, pass <InlineCode>42</InlineCode>.{" "}
-        (<InlineCode>agentctl</InlineCode> rejects anything that isn&apos;t a
-        positive integer.)
+        Make this issue the next one this Worker claims. Pass the issue{" "}
+        <strong>number</strong> (e.g. <InlineCode>42</InlineCode>), not the URL.
       </>
     ),
   },
@@ -267,10 +357,12 @@ const AGENTCTL_COMMANDS: CommandRow[] = [
 
 const AGENTCTL_WARNINGS = [
   "Always use the absolute path /usr/local/bin/agentctl. A bare agentctl may resolve to the target repository's package.",
-  "Never use docker compose run to issue commands. Only the live agent in its own container accepts them.",
+  "Never use docker compose run to issue commands. Only the live Worker in its own container accepts them.",
 ];
 
 export function QuickStart() {
+  const [step4Tab, setStep4Tab] = useState<"skill" | "cli">("skill");
+
   return (
     <section
       id="quick-start"
@@ -281,8 +373,8 @@ export function QuickStart() {
           Quick start
         </h2>
         <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-          From zero to a running, controllable agent instance in five steps,
-          with{" "}
+          From zero to a running, controllable agent instance — or a
+          multi-Worker Pool — in six steps with{" "}
           <a
             href={AGENT_FORGE_URL}
             target="_blank"
@@ -324,7 +416,7 @@ export function QuickStart() {
 
         <Step
           number={2}
-          title="Create an agent with create-agent"
+          title="Create an agent (or Pool) with create-agent"
           explanation={
             <>
               <p>
@@ -343,8 +435,10 @@ export function QuickStart() {
                 <InlineCode>.env</InlineCode>.
               </p>
               <p>
-                Review <InlineCode>.env</InlineCode> and fill in missing
-                credentials before you start.
+                An instance runs 1 Worker by default; ask{" "}
+                <InlineCode>create-agent</InlineCode> for{" "}
+                <strong>N Workers</strong> to generate a Pool taking issues from
+                the same Queue.
               </p>
             </>
           }
@@ -353,7 +447,7 @@ export function QuickStart() {
               <CodeBlock
                 tone="light"
                 code={
-                  "Use create-agent to create an agent for https://github.com/owner/repository in agent-instances/agent-repository/."
+                  "Use create-agent to create an agent for https://github.com/owner/repository in agent-instances/agent-repository/ (with 2 Workers)."
                 }
               />
               <p className="text-xs font-mono text-slate-500">
@@ -375,9 +469,11 @@ export function QuickStart() {
             <>
               <p>Run every command from the instance directory.</p>
               <p>
-                The <InlineCode>agent_data</InlineCode> volume keeps the
-                repository checkout, state and attempt logs across restarts and
-                rebuilds. Only <InlineCode>down -v</InlineCode> deletes it.
+                The <InlineCode>agent_data</InlineCode> volume (plus{" "}
+                <InlineCode>data_2..N</InlineCode> for additional Workers) keeps
+                the repository checkout, state and attempt logs across restarts
+                and rebuilds. Only <InlineCode>down -v</InlineCode> deletes
+                them.
               </p>
             </>
           }
@@ -386,14 +482,130 @@ export function QuickStart() {
 
         <Step
           number={4}
-          title="Control it with agentctl"
+          title="Scale the Worker Pool with manage-pool"
+          badge={
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-mono text-[11px] font-semibold">
+              <Layers className="w-3 h-3" />
+              Pool Scaling
+            </span>
+          }
           explanation={
             <>
               <p>
-                <InlineCode>agentctl</InlineCode> runs inside the live
-                container. Start with <InlineCode>status</InlineCode>: its
-                first line names <InlineCode>TARGET_REPO</InlineCode>, so check
-                it before any command that changes what the agent does.
+                Add, remove, stop or resume Workers with{" "}
+                <InlineCode>manage-pool</InlineCode>. Each Worker has its own
+                volume and <InlineCode>WORKER_ID</InlineCode> (
+                <InlineCode>&lt;short-name&gt;-&lt;n&gt;</InlineCode>), so
+                scaling edits <InlineCode>compose.yaml</InlineCode> rather than
+                using <InlineCode>docker compose --scale</InlineCode>.
+              </p>
+
+              {/* Compact Visual Topology Strip */}
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+                  <span>INSTANCE POOL TOPOLOGY</span>
+                  <span className="text-emerald-700 font-semibold">
+                    claimed-by:&lt;worker-id&gt;
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 font-mono text-[11px]">
+                  <div className="rounded-lg bg-white border border-slate-200 p-2">
+                    <div className="font-bold text-slate-900">agent</div>
+                    <div className="text-slate-500 text-[10px]">agent_data</div>
+                    <div className="text-blue-600 text-[10px]">id: repo-1</div>
+                  </div>
+                  <div className="rounded-lg bg-white border border-slate-200 p-2">
+                    <div className="font-bold text-slate-900">agent-2</div>
+                    <div className="text-slate-500 text-[10px]">data_2</div>
+                    <div className="text-blue-600 text-[10px]">id: repo-2</div>
+                  </div>
+                  <div className="rounded-lg bg-emerald-50/70 border border-dashed border-emerald-300 p-2">
+                    <div className="font-bold text-emerald-900">agent-N</div>
+                    <div className="text-emerald-700 text-[10px]">data_N</div>
+                    <div className="text-emerald-700 text-[10px]">+ scale</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          }
+          commands={
+            <>
+              <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setStep4Tab("skill")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                    step4Tab === "skill"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <Wand2 className="w-3.5 h-3.5 text-amber-600" />
+                  <span>manage-pool Skill</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep4Tab("cli")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                    step4Tab === "cli"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <Terminal className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Docker Compose &amp; CLI</span>
+                </button>
+              </div>
+
+              {step4Tab === "skill" ? (
+                <>
+                  <CodeBlock
+                    tone="light"
+                    code={
+                      "Use manage-pool to add a Worker to agent-instances/agent-repository."
+                    }
+                  />
+                  <CommandTable rows={MANAGE_POOL_SKILL_COMMANDS} />
+                </>
+              ) : (
+                <>
+                  <CommandTable rows={MANAGE_POOL_CLI_COMMANDS} />
+                  <CodeBlock
+                    code={
+                      "# Start only the newly added Worker:\ndocker compose up -d agent-2\n\n# Check all Workers and GitHub Claim markers:\n.agents/skills/debug-agent/scripts/pool-status.sh --github repository"
+                    }
+                  />
+                </>
+              )}
+            </>
+          }
+        />
+
+        <Step
+          number={5}
+          title="Control Workers with agentctl"
+          explanation={
+            <>
+              <p>
+                <InlineCode>agentctl</InlineCode> runs inside the live Worker
+                container (<InlineCode>agent</InlineCode> or{" "}
+                <InlineCode>agent-2..N</InlineCode>). Start with{" "}
+                <InlineCode>status</InlineCode>: its first line names{" "}
+                <InlineCode>TARGET_REPO</InlineCode>, so check it before any
+                command that changes what the Worker does.
+              </p>
+              <p>
+                You can also perform these actions (<InlineCode>stop</InlineCode>
+                , <InlineCode>resume</InlineCode>,{" "}
+                <InlineCode>handoff now</InlineCode>,{" "}
+                <InlineCode>next issue</InlineCode>) from the browser via the{" "}
+                <a
+                  href="#dashboard"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  Agent Dashboard ↓
+                </a>{" "}
+                control console.
               </p>
               <ul className="space-y-1.5">
                 {AGENTCTL_WARNINGS.map((warning) => (
@@ -407,26 +619,26 @@ export function QuickStart() {
           }
           commands={
             <>
-              <PrefixLine prefix={AGENTCTL_PREFIX} />
+              <PrefixLine prefix={AGENTCTL_POOL_PREFIX} />
               <CommandTable rows={AGENTCTL_COMMANDS} />
               <p className="text-xs font-mono text-slate-500">Example:</p>
               <CodeBlock
-                code={`${AGENTCTL_PREFIX} status\n${AGENTCTL_PREFIX} next issue 42`}
+                code={`${AGENTCTL_PREFIX} status\n${AGENTCTL_POOL_PREFIX.replace("<service>", "agent-2")} next issue 42`}
               />
             </>
           }
         />
 
         <Step
-          number={5}
+          number={6}
           title="Debug with debug-agent"
           explanation={
             <p>
               Ask your coding assistant to use the{" "}
               <InlineCode>debug-agent</InlineCode> skill. It reads startup logs,
-              persisted state, attempt events and validation output to tell
-              whether the problem is in the target repository, the instance
-              configuration or the upstream agent.
+              persisted state, attempt events and validation output across any
+              Worker in the Pool (<InlineCode>--worker 2</InlineCode> or{" "}
+              <InlineCode>pool-status.sh</InlineCode>).
             </p>
           }
           commands={
