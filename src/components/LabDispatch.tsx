@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Radar } from "lucide-react";
 
 const CODING_AGENT_URL = "https://github.com/lbacik/coding-agent";
-const AGENT_FORGE_URL = "https://github.com/lbacik/agent-forge";
 
 export function LabDispatch() {
   return (
@@ -29,7 +28,7 @@ export function LabDispatch() {
         </a>
       </div>
 
-      {/* Active Development: agent-forge & coding agent 'Rex' */}
+      {/* Active Development: coding agent 'Rex' */}
       <div className="p-3 sm:px-4 sm:py-3 bg-amber-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-start sm:items-center gap-3 min-w-0">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0 mt-1 sm:mt-0" aria-hidden="true" />
@@ -41,16 +40,7 @@ export function LabDispatch() {
               <span className="font-mono font-bold text-xs text-slate-900">Active Development:</span>
             </div>
             <p className="mt-0.5 text-xs text-slate-600 font-sans leading-normal">
-              Multi-agent project orchestration{" "}
-              <Link
-                href={AGENT_FORGE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono font-bold text-amber-900 hover:underline"
-              >
-                (agent-forge)
-              </Link>{" "}
-              &amp; new{" "}
+              New graph-driven autonomous{" "}
               <Link
                 href={CODING_AGENT_URL}
                 target="_blank"
