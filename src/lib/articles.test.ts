@@ -46,4 +46,13 @@ describe("articles data", () => {
     const urls = getArticles().map((a) => a.url);
     expect(new Set(urls).size).toBe(urls.length);
   });
+
+  it("includes editorial context (subtitle, description, tags, readingTime) for each card", () => {
+    for (const article of getArticles()) {
+      expect(article.subtitle.trim().length).toBeGreaterThan(10);
+      expect(article.description.trim().length).toBeGreaterThan(40);
+      expect(article.tags.length).toBeGreaterThanOrEqual(2);
+      expect(article.readingTime).toMatch(/^\d+\s+min read$/);
+    }
+  });
 });
