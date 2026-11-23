@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   Sparkles,
@@ -19,6 +19,7 @@ import {
   ListTodo,
   Maximize2,
   Layers,
+  Network,
   User,
   Bot,
   Copy,
@@ -27,6 +28,12 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { WorkflowSimulationHUD } from "./WorkflowSimulationHUD";
+import { PrototypeSwitcher, usePrototypeState } from "./PrototypeSwitcher";
+import {
+  LandscapeVariantA,
+  LandscapeVariantB,
+  LandscapeVariantC,
+} from "./ToolsLandscapeTabs";
 
 interface StepData {
   id: string;
@@ -159,7 +166,8 @@ const STEPS: StepData[] = [
   },
 ];
 
-export function InteractiveWorkflow() {
+function InteractiveWorkflowInner() {
+  const { variant, variantMeta, activeTab, setActiveTab } = usePrototypeState();
   // Default mode is Architecture Diagram ("blueprint") as requested
   const [viewMode, setViewMode] = useState<"blueprint" | "interactive">("blueprint");
   const [activeStep, setActiveStep] = useState(0);
@@ -204,6 +212,7 @@ export function InteractiveWorkflow() {
   };
 
   const handleStartSimulation = () => {
+    setActiveTab("workflow");
     setViewMode("interactive");
     setActiveStep(0);
     setIsPlaying(true);
@@ -265,25 +274,57 @@ export function InteractiveWorkflow() {
     >
       {/* Frame: toolbar and content panel share one tinted surface */}
       <div className="rounded-3xl bg-blue-100/70 ring-1 ring-blue-200 shadow-soft p-2 sm:p-2.5">
-        {/* Top Header / Mode Switcher Toolbar */}
+        {/* Top Header / Primary Tab & Mode Switcher Toolbar */}
         <div className="px-2.5 py-2 sm:px-3 sm:py-2.5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-white border border-blue-200 flex items-center justify-center text-blue-600">
-              <Layers className="w-4 h-4" />
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Primary Section Tabs: Delivery Workflow vs. Tools Landscape */}
+            <div
+              role="tablist"
+              aria-label="Workflow and ecosystem views"
+              className="inline-flex rounded-xl bg-white/75 p-1 border border-blue-200/90 shadow-2xs"
+            >
+              <button
+                type="button"
+                role="tab"
+                id="workflow-primary-tab-delivery"
+                aria-selected={activeTab === "workflow"}
+                onClick={() => setActiveTab("workflow")}
+                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 aria-selected:bg-white aria-selected:text-slate-950 aria-selected:shadow-xs aria-selected:after:content-[''] aria-selected:after:absolute aria-selected:after:inset-x-2.5 aria-selected:after:bottom-0.5 aria-selected:after:border-b-2 aria-selected:after:border-blue-600"
+              >
+                <Layers className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>Delivery Workflow</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="workflow-primary-tab-landscape"
+                aria-selected={activeTab === "landscape"}
+                onClick={() => {
+                  setActiveTab("landscape");
+                  setIsPlaying(false);
+                  setIsSimulationHUDOpen(false);
+                }}
+                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 aria-selected:bg-white aria-selected:text-slate-950 aria-selected:shadow-xs aria-selected:after:content-[''] aria-selected:after:absolute aria-selected:after:inset-x-2.5 aria-selected:after:bottom-0.5 aria-selected:after:border-b-2 aria-selected:after:border-blue-600"
+              >
+                <Network className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                <span>{variantMeta.landscapeTabTitle}</span>
+              </button>
             </div>
-            <div>
+
+            <div className="hidden md:block">
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-slate-900 text-xs sm:text-sm">
-                  Delivery Workflow
-                </span>
-                <span className="hidden sm:inline text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 text-slate-600 border border-slate-300/70 uppercase font-semibold">
-                  {viewMode === "interactive"
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 text-slate-600 border border-slate-300/70 uppercase font-semibold">
+                  {activeTab === "landscape"
+                    ? "agentfleet Operator Contract"
+                    : viewMode === "interactive"
                     ? "Interactive Mode"
                     : "Architecture Diagram"}
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-slate-600 hidden sm:block">
-                {viewMode === "interactive"
+              <p className="text-[11px] font-mono text-slate-600 mt-0.5">
+                {activeTab === "landscape"
+                  ? "Agent Forge & Agent Dashboard consume agentfleet, implemented by Sid & Rex."
+                  : viewMode === "interactive"
                   ? "Click stages to inspect details or simulate the autonomous feedback loop."
                   : "From idea to merged change · Human-led planning, agent execution, human approval."}
               </p>
@@ -292,7 +333,34 @@ export function InteractiveWorkflow() {
 
           {/* Action Controls */}
           <div className="flex items-center gap-2 text-xs font-mono ml-auto">
-            {viewMode === "interactive" ? (
+            {activeTab === "landscape" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setZoomedDiagram({
+                      src: "/charts/tools-landscape-en.svg",
+                      title: `${variantMeta.landscapeTabTitle} — Operator Contract & Agent Fleet`,
+                      desc: "Agent Forge & Agent Dashboard use agentfleet (lbacik/agent-operator-contract), implemented by simple-coding-agent (Sid) and coding-agent (Rex).",
+                    })
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 hover:border-slate-400 font-semibold transition-colors cursor-pointer"
+                  title="Zoom architecture diagram"
+                >
+                  <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="hidden sm:inline">Zoom Diagram</span>
+                </button>
+                <a
+                  href="/charts/tools-landscape-en.svg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
+                  title="Open raw vector SVG in new tab"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </>
+            ) : viewMode === "interactive" ? (
               <>
                 <button
                   type="button"
@@ -374,20 +442,32 @@ export function InteractiveWorkflow() {
               </>
             )}
 
-            <a
-              href="/charts/workflow-en.svg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
-              title="Open raw vector SVG in new tab"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            {activeTab === "workflow" && (
+              <a
+                href="/charts/workflow-en.svg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
+                title="Open raw vector SVG in new tab"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
 
         {/* Main Panel Content */}
-        {viewMode === "blueprint" ? (
+        {activeTab === "landscape" ? (
+          <div role="tabpanel" aria-labelledby="workflow-primary-tab-landscape">
+            {variant === "A" && (
+              <LandscapeVariantA onOpenDiagram={(diag) => setZoomedDiagram(diag)} />
+            )}
+            {variant === "B" && <LandscapeVariantB />}
+            {variant === "C" && (
+              <LandscapeVariantC onOpenDiagram={(diag) => setZoomedDiagram(diag)} />
+            )}
+          </div>
+        ) : viewMode === "blueprint" ? (
           /* =========================================================================
              ARCHITECTURE DIAGRAM (COMPACT 0.5X OR EXPANDED 1.0X)
              ========================================================================= */
@@ -901,7 +981,18 @@ export function InteractiveWorkflow() {
         onTogglePlay={(playing) => setIsPlaying(playing)}
         onRequestChangesRework={handleTriggerFeedbackLoop}
       />
+
+      {/* Floating UI Prototype Variant Switcher */}
+      <PrototypeSwitcher />
     </div>
+  );
+}
+
+export function InteractiveWorkflow() {
+  return (
+    <Suspense fallback={<div className="min-h-[420px]" />}>
+      <InteractiveWorkflowInner />
+    </Suspense>
   );
 }
 

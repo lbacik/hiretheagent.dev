@@ -1,0 +1,215 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="850" viewBox="0 0 1680 850" role="img" aria-labelledby="title desc">
+<title id="title">Tools Landscape — Operator Tools, agentfleet Contract, and Coding Agent Engines</title>
+<desc id="desc">Architecture diagram showing how Agent Forge and Agent Dashboard consume the agentfleet client and versioned operator contract defined in agent-operator-contract, which is implemented by two interchangeable coding agents: simple-coding-agent (Sid) and coding-agent (Rex).</desc>
+<defs>
+  <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+    <circle cx="1.5" cy="1.5" r="1.2" fill="#dbe2eb"/>
+  </pattern>
+  <linearGradient id="contractBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#eff6ff"/>
+    <stop offset="100%" stop-color="#eef2ff"/>
+  </linearGradient>
+  <linearGradient id="contractAccent" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#2563eb"/>
+    <stop offset="50%" stop-color="#4f46e5"/>
+    <stop offset="100%" stop-color="#059669"/>
+  </linearGradient>
+  <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/>
+  </marker>
+  <marker id="arrowEmerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L10 5 L0 10 Z" fill="#059669"/>
+  </marker>
+  <marker id="arrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0 0 L10 5 L0 10 Z" fill="#d97706"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #0f172a; }
+  .title { font-size: 34px; font-weight: 700; fill: #0f172a; }
+  .meta { font-size: 18px; fill: #64748b; }
+  .zone { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; }
+  .card-title { font-size: 25px; font-weight: 700; fill: #0f172a; }
+  .card-sub { font-size: 16px; fill: #475569; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  .repo { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; fill: #2563eb; font-weight: 600; }
+  .pill { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 600; }
+  .edge-label { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; }
+  a:hover .repo { text-decoration: underline; }
+</style>
+
+<!-- Background -->
+<rect width="1680" height="850" fill="#f6f8fb"/>
+<rect y="136" width="1680" height="630" fill="url(#grid)" opacity="0.65"/>
+
+<!-- Header -->
+<text x="64" y="66" class="title">Tools &amp; Agent Ecosystem</text>
+<text x="64" y="101" class="meta">Decoupled operator tools and interchangeable coding agents connected via the agentfleet operator contract</text>
+<path d="M64 132 H1616" stroke="#dbe2eb" stroke-width="1.5"/>
+
+<!-- Column Zone Headers -->
+<rect x="64" y="156" width="430" height="36" rx="10" fill="#dbeafe" fill-opacity="0.75"/>
+<text x="279" y="179" text-anchor="middle" class="zone" fill="#1d4ed8">01 · OPERATOR TOOLS (CONSUMERS)</text>
+
+<rect x="625" y="156" width="430" height="36" rx="10" fill="#e0e7ff" fill-opacity="0.9"/>
+<text x="840" y="179" text-anchor="middle" class="zone" fill="#3730a3">02 · OPERATOR CONTRACT &amp; CLIENT</text>
+
+<rect x="1186" y="156" width="430" height="36" rx="10" fill="#d1fae5" fill-opacity="0.8"/>
+<text x="1401" y="179" text-anchor="middle" class="zone" fill="#065f46">03 · CODING AGENT ENGINES (PRODUCERS)</text>
+
+<!-- ======================================================================= -->
+<!-- LEFT COLUMN: AGENT FORGE & AGENT DASHBOARD                              -->
+<!-- ======================================================================= -->
+
+<!-- Card: Agent Forge -->
+<rect x="64" y="216" width="430" height="236" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M86 216 H472" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+<rect x="92" y="242" width="128" height="26" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+<text x="156" y="259" text-anchor="middle" class="pill" fill="#1d4ed8">CLI &amp; Skills</text>
+<a href="https://github.com/lbacik/agent-forge" target="_blank" rel="noopener noreferrer">
+  <text x="466" y="260" text-anchor="end" class="repo">lbacik/agent-forge ↗</text>
+</a>
+<text x="92" y="302" class="card-title">Agent Forge</text>
+<text x="92" y="330" class="card-sub">Provision, scale &amp; operate dedicated instances</text>
+<path d="M92 350 H466" stroke="#e2e8f0"/>
+<rect x="92" y="366" width="112" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="148" y="383" text-anchor="middle" class="pill" fill="#334155">create-agent</text>
+<rect x="212" y="366" width="112" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="268" y="383" text-anchor="middle" class="pill" fill="#334155">manage-pool</text>
+<rect x="332" y="366" width="124" height="26" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+<text x="394" y="383" text-anchor="middle" class="pill" fill="#1d4ed8">operate-agent</text>
+<text x="92" y="424" class="card-sub" style="font-size:14px;fill:#64748b">Also ships <tspan class="mono" fill="#334155">debug-agent</tspan> &amp; <tspan class="mono" fill="#334155">deploy-dashboard</tspan></text>
+
+<!-- Card: Agent Dashboard -->
+<rect x="64" y="492" width="430" height="236" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M86 492 H472" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+<rect x="92" y="518" width="138" height="26" rx="8" fill="#e0f2fe" stroke="#bae6fd"/>
+<text x="161" y="535" text-anchor="middle" class="pill" fill="#0369a1">Web UI · BETA</text>
+<a href="https://github.com/lbacik/agent-dashboard" target="_blank" rel="noopener noreferrer">
+  <text x="466" y="536" text-anchor="end" class="repo">lbacik/agent-dashboard ↗</text>
+</a>
+<text x="92" y="578" class="card-title">Agent Dashboard</text>
+<text x="92" y="606" class="card-sub">Observe &amp; command your container fleet</text>
+<path d="M92 626 H466" stroke="#e2e8f0"/>
+<rect x="92" y="642" width="122" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="153" y="659" text-anchor="middle" class="pill" fill="#334155">Fleet Overview</text>
+<rect x="222" y="642" width="110" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="277" y="659" text-anchor="middle" fill="#334155" class="pill">Unit Cockpit</text>
+<rect x="340" y="642" width="126" height="26" rx="6" fill="#e0f2fe" stroke="#bae6fd"/>
+<text x="403" y="659" text-anchor="middle" class="pill" fill="#0369a1">2-Step Control</text>
+<text x="92" y="700" class="card-sub" style="font-size:14px;fill:#64748b">Live status polling, cost charts &amp; offline volume reads</text>
+
+<!-- ======================================================================= -->
+<!-- CENTER COLUMN: AGENT-OPERATOR-CONTRACT / AGENTFLEET                     -->
+<!-- ======================================================================= -->
+
+<!-- Outer Contract Halo -->
+<rect x="615" y="246" width="450" height="452" rx="28" fill="#e0e7ff" fill-opacity="0.45" stroke="#a5b4fc" stroke-width="1.5" stroke-dasharray="6 5"/>
+
+<!-- Core Contract Card -->
+<rect x="629" y="260" width="422" height="424" rx="22" fill="url(#contractBg)" stroke="#6366f1" stroke-width="2.5"/>
+<path d="M654 260 H1026" stroke="url(#contractAccent)" stroke-width="5" stroke-linecap="round"/>
+
+<rect x="657" y="288" width="176" height="28" rx="9" fill="#4f46e5"/>
+<text x="745" y="307" text-anchor="middle" class="pill" fill="#ffffff">CONTRACT v1.x</text>
+<a href="https://github.com/lbacik/agent-operator-contract" target="_blank" rel="noopener noreferrer">
+  <text x="1023" y="307" text-anchor="end" class="repo" fill="#4338ca">agent-operator-contract ↗</text>
+</a>
+
+<text x="657" y="352" class="card-title" style="font-size:27px">agentfleet</text>
+<text x="657" y="379" class="card-sub" style="fill:#3730a3;font-weight:600">lbacik/agent-operator-contract</text>
+<text x="657" y="405" class="card-sub" style="font-size:15px">Neutral specification, schemas &amp; host-side client</text>
+
+<!-- Consumer Boundary Box inside Contract -->
+<rect x="657" y="426" width="366" height="84" rx="14" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.5"/>
+<text x="677" y="451" class="zone" fill="#1d4ed8" style="font-size:11.5px">HOST CLIENT &amp; CONSUMER API</text>
+<text x="677" y="476" class="mono" style="font-size:15px;font-weight:700;fill:#0f172a">agentfleet CLI · client library</text>
+<text x="677" y="497" class="card-sub" style="font-size:13.5px">discover · status · stop · resume · handoff · attempts</text>
+
+<!-- Producer Boundary Box inside Contract -->
+<rect x="657" y="524" width="366" height="84" rx="14" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.5"/>
+<text x="677" y="549" class="zone" fill="#047857" style="font-size:11.5px">ENGINE PRODUCER INTERFACE</text>
+<text x="677" y="574" class="mono" style="font-size:15px;font-weight:700;fill:#0f172a">agentctl --contract 1 · JSON Schemas</text>
+<text x="677" y="595" class="card-sub" style="font-size:13.5px">Status Snapshot · Operator Commands · Offline Read</text>
+
+<!-- Bottom Guarantee Pill inside Contract -->
+<rect x="657" y="624" width="366" height="36" rx="10" fill="#eef2ff" stroke="#c7d2fe"/>
+<text x="840" y="647" text-anchor="middle" class="pill" fill="#3730a3">Zero dependencies on engines or operator tools</text>
+
+<!-- ======================================================================= -->
+<!-- RIGHT COLUMN: SIMPLE-CODING-AGENT (SID) & CODING-AGENT (REX)            -->
+<!-- ======================================================================= -->
+
+<!-- Card: simple-coding-agent (Sid) -->
+<rect x="1186" y="216" width="430" height="236" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M1208 216 H1594" stroke="#059669" stroke-width="4" stroke-linecap="round"/>
+<rect x="1214" y="242" width="142" height="26" rx="8" fill="#d1fae5" stroke="#6ee7b7"/>
+<text x="1285" y="259" text-anchor="middle" class="pill" fill="#065f46">Sid · Production</text>
+<a href="https://github.com/lbacik/simple-coding-agent" target="_blank" rel="noopener noreferrer">
+  <text x="1588" y="260" text-anchor="end" class="repo">lbacik/simple-coding-agent ↗</text>
+</a>
+<text x="1214" y="302" class="card-title">simple-coding-agent</text>
+<text x="1214" y="330" class="card-sub">Unattended autonomous coding agent (&ldquo;Sid&rdquo;)</text>
+<path d="M1214 350 H1588" stroke="#e2e8f0"/>
+<rect x="1214" y="366" width="136" height="26" rx="6" fill="#ecfdf5" stroke="#a7f3d0"/>
+<text x="1282" y="383" text-anchor="middle" class="pill" fill="#065f46">Claude Agent SDK</text>
+<rect x="1358" y="366" width="114" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="1415" y="383" text-anchor="middle" class="pill" fill="#334155">Worker Pools</text>
+<rect x="1480" y="366" width="108" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="1534" y="383" text-anchor="middle" class="pill" fill="#334155">agentctl v1</text>
+<text x="1214" y="424" class="card-sub" style="font-size:14px;fill:#64748b">Claims <tspan class="mono" fill="#334155">ready-for-agent</tspan> issues &amp; ships verified PRs</text>
+
+<!-- Card: coding-agent (Rex) -->
+<rect x="1186" y="492" width="430" height="236" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<path d="M1208 492 H1594" stroke="#d97706" stroke-width="4" stroke-linecap="round"/>
+<rect x="1214" y="518" width="156" height="26" rx="8" fill="#fef3c7" stroke="#fcd34d"/>
+<text x="1292" y="535" text-anchor="middle" class="pill" fill="#92400e">Rex · Experimental</text>
+<a href="https://github.com/lbacik/coding-agent" target="_blank" rel="noopener noreferrer">
+  <text x="1588" y="536" text-anchor="end" class="repo">lbacik/coding-agent ↗</text>
+</a>
+<text x="1214" y="578" class="card-title">coding-agent</text>
+<text x="1214" y="606" class="card-sub">Declarative step-workflow coding agent (&ldquo;Rex&rdquo;)</text>
+<path d="M1214 626 H1588" stroke="#e2e8f0"/>
+<rect x="1214" y="642" width="104" height="26" rx="6" fill="#fffbeb" stroke="#fde68a"/>
+<text x="1266" y="659" text-anchor="middle" class="pill" fill="#92400e">LangGraph</text>
+<rect x="1326" y="642" width="136" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="1394" y="659" text-anchor="middle" class="pill" fill="#334155">YAML Workflows</text>
+<rect x="1470" y="642" width="118" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="1529" y="659" text-anchor="middle" class="pill" fill="#334155">Run Ledger</text>
+<text x="1214" y="700" class="card-sub" style="font-size:14px;fill:#64748b">Graph-driven step execution &amp; skill bundle policies</text>
+
+<!-- ======================================================================= -->
+<!-- CONNECTORS: LEFT -> CENTER (USES AGENTFLEET)                            -->
+<!-- ======================================================================= -->
+
+<!-- Agent Forge -> Contract -->
+<path d="M494 334 C555 334, 560 452, 621 452" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+<rect x="506" y="366" width="108" height="26" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+<text x="560" y="383" text-anchor="middle" class="edge-label" fill="#1d4ed8">uses client</text>
+
+<!-- Agent Dashboard -> Contract -->
+<path d="M494 610 C555 610, 560 482, 621 482" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+<rect x="506" y="544" width="108" height="26" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+<text x="560" y="561" text-anchor="middle" class="edge-label" fill="#1d4ed8">uses client</text>
+
+<!-- ======================================================================= -->
+<!-- CONNECTORS: RIGHT -> CENTER (IMPLEMENTS CONTRACT)                       -->
+<!-- ======================================================================= -->
+
+<!-- simple-coding-agent (Sid) -> Contract -->
+<path d="M1186 334 C1125 334, 1120 550, 1059 550" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="7 4" marker-end="url(#arrowEmerald)"/>
+<rect x="1064" y="366" width="114" height="26" rx="8" fill="#ecfdf5" stroke="#6ee7b7"/>
+<text x="1121" y="383" text-anchor="middle" class="edge-label" fill="#047857">implements</text>
+
+<!-- coding-agent (Rex) -> Contract -->
+<path d="M1186 610 C1125 610, 1120 580, 1059 580" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 4" marker-end="url(#arrowAmber)"/>
+<rect x="1064" y="544" width="114" height="26" rx="8" fill="#fffbeb" stroke="#fcd34d"/>
+<text x="1121" y="561" text-anchor="middle" class="edge-label" fill="#b45309">implements</text>
+
+<!-- ======================================================================= -->
+<!-- FOOTER LEGEND & ARCHITECTURAL NOTE                                      -->
+<!-- ======================================================================= -->
+<path d="M64 766 H1616" stroke="#dbe2eb" stroke-width="1.5"/>
+<text x="64" y="802" class="meta" style="font-size:16px;font-weight:600;fill:#334155">Dependency inversion across the fleet:</text>
+<text x="372" y="802" class="meta" style="font-size:16px">Operator tools call <tspan class="mono" fill="#1d4ed8" font-weight="700">agentfleet</tspan>; coding agents implement <tspan class="mono" fill="#047857" font-weight="700">agent-operator-contract</tspan> (<tspan class="mono" fill="#334155">agentctl</tspan>). Engines are interchangeable.</text>
+</svg>
