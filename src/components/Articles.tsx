@@ -13,17 +13,40 @@ function MediumMark({ className }: { className?: string }) {
   );
 }
 
+function formatPublishedDate(iso: string): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  const date = new Date(Date.UTC(year, (month || 1) - 1, day || 1));
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export function Articles() {
   const articles = getArticles();
   if (articles.length === 0) return null;
 
   return (
     <section id="articles" className="scroll-mt-28">
-      <div className="mt-12 sm:mt-16 mb-12 sm:mb-16">
-        <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
-          Read on Medium
-        </h2>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm">
+      <div className="mt-12 sm:mt-16 mb-12 sm:mb-16 max-w-5xl lg:max-w-6xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-5 text-left">
+          <div>
+            <h2 className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
+              <MediumMark className="w-4 h-4 fill-slate-900" />
+              <span>Read on Medium</span>
+            </h2>
+            <p className="mt-1 text-xs sm:text-sm text-slate-600 font-sans">
+              Engineering write-ups on building, securing, and operating autonomous coding agents.
+            </p>
+          </div>
+          <span className="text-[11px] font-mono text-slate-400">
+            lbacik.medium.com · {articles.length} articles
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 text-left">
           {articles.map((article) => (
             <a
               key={article.url}
@@ -32,11 +55,56 @@ export function Articles() {
               rel="noopener noreferrer"
               data-umami-event="article-click"
               data-umami-event-title={article.title}
-              className="group inline-flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-white border border-slate-200 hover:border-slate-900 text-slate-700 hover:text-slate-950 shadow-sm transition-colors"
+              className="group rounded-2xl bg-white/95 hover:bg-white border border-slate-200/90 hover:border-blue-400 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-200 flex flex-col justify-between min-h-[290px]"
             >
-              <MediumMark className="w-5 h-5 fill-slate-950" />
-              {article.title}
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900" />
+              <article className="flex flex-col flex-1 justify-between">
+                <div>
+                  {/* Top Meta Row: Medium badge + date & read time */}
+                  <div className="flex items-center justify-between gap-2 mb-3.5">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 group-hover:bg-slate-900 text-slate-800 group-hover:text-white text-[11px] font-mono font-semibold transition-colors">
+                      <MediumMark className="w-3.5 h-3.5 fill-current" />
+                      <span>Medium</span>
+                    </span>
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                      <span>{formatPublishedDate(article.publishedAt)}</span>
+                      <span>•</span>
+                      <span>{article.readingTime}</span>
+                    </div>
+                  </div>
+
+                  {/* Title & Subtitle */}
+                  <h3 className="font-display font-bold text-lg text-slate-950 group-hover:text-blue-600 transition-colors leading-snug">
+                    {article.title}
+                  </h3>
+                  <p className="mt-1 text-xs font-mono font-semibold text-blue-700">
+                    {article.subtitle}
+                  </p>
+
+                  {/* Context Description */}
+                  <p className="mt-3 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-sans">
+                    {article.description}
+                  </p>
+                </div>
+
+                {/* Footer: Topic Tags + CTA */}
+                <footer className="mt-5 pt-4 border-t border-slate-100 space-y-3">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {article.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="font-mono text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/80"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                    <span>Read full article</span>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                </footer>
+              </article>
             </a>
           ))}
         </div>

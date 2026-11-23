@@ -19,6 +19,7 @@ import {
   ListTodo,
   Maximize2,
   Layers,
+  Network,
   User,
   Bot,
   Copy,
@@ -27,6 +28,37 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { WorkflowSimulationHUD } from "./WorkflowSimulationHUD";
+
+const ECOSYSTEM_REPOS = [
+  {
+    name: "Agent Forge",
+    url: "https://github.com/lbacik/agent-forge",
+  },
+  {
+    name: "Agent Dashboard",
+    url: "https://github.com/lbacik/agent-dashboard",
+  },
+  {
+    name: "agentfleet (agent-operator-contract)",
+    url: "https://github.com/lbacik/agent-operator-contract",
+  },
+  {
+    name: "simple-coding-agent (Sid)",
+    url: "https://github.com/lbacik/simple-coding-agent",
+  },
+  {
+    name: "coding-agent (Rex)",
+    url: "https://github.com/lbacik/coding-agent",
+  },
+] as const;
+
+function GithubIcon({ className = "w-3 h-3 fill-current" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
 
 interface StepData {
   id: string;
@@ -160,6 +192,9 @@ const STEPS: StepData[] = [
 ];
 
 export function InteractiveWorkflow() {
+  const [activePrimaryTab, setActivePrimaryTab] = useState<"workflow" | "ecosystem">(
+    "workflow",
+  );
   // Default mode is Architecture Diagram ("blueprint") as requested
   const [viewMode, setViewMode] = useState<"blueprint" | "interactive">("blueprint");
   const [activeStep, setActiveStep] = useState(0);
@@ -204,6 +239,7 @@ export function InteractiveWorkflow() {
   };
 
   const handleStartSimulation = () => {
+    setActivePrimaryTab("workflow");
     setViewMode("interactive");
     setActiveStep(0);
     setIsPlaying(true);
@@ -265,25 +301,57 @@ export function InteractiveWorkflow() {
     >
       {/* Frame: toolbar and content panel share one tinted surface */}
       <div className="rounded-3xl bg-blue-100/70 ring-1 ring-blue-200 shadow-soft p-2 sm:p-2.5">
-        {/* Top Header / Mode Switcher Toolbar */}
+        {/* Top Header / Primary Tab & Mode Switcher Toolbar */}
         <div className="px-2.5 py-2 sm:px-3 sm:py-2.5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-white border border-blue-200 flex items-center justify-center text-blue-600">
-              <Layers className="w-4 h-4" />
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Primary Section Tabs: Delivery Workflow vs. Ecosystem & Contract */}
+            <div
+              role="tablist"
+              aria-label="Workflow and ecosystem views"
+              className="inline-flex rounded-xl bg-white/75 p-1 border border-blue-200/90 shadow-2xs"
+            >
+              <button
+                type="button"
+                role="tab"
+                id="workflow-primary-tab-delivery"
+                aria-selected={activePrimaryTab === "workflow"}
+                onClick={() => setActivePrimaryTab("workflow")}
+                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 aria-selected:bg-white aria-selected:text-slate-950 aria-selected:shadow-xs aria-selected:after:content-[''] aria-selected:after:absolute aria-selected:after:inset-x-2.5 aria-selected:after:bottom-0.5 aria-selected:after:border-b-2 aria-selected:after:border-blue-600"
+              >
+                <Layers className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>Delivery Workflow</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="workflow-primary-tab-ecosystem"
+                aria-selected={activePrimaryTab === "ecosystem"}
+                onClick={() => {
+                  setActivePrimaryTab("ecosystem");
+                  setIsPlaying(false);
+                  setIsSimulationHUDOpen(false);
+                }}
+                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900 aria-selected:bg-white aria-selected:text-slate-950 aria-selected:shadow-xs aria-selected:after:content-[''] aria-selected:after:absolute aria-selected:after:inset-x-2.5 aria-selected:after:bottom-0.5 aria-selected:after:border-b-2 aria-selected:after:border-blue-600"
+              >
+                <Network className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                <span>Ecosystem &amp; Contract</span>
+              </button>
             </div>
-            <div>
+
+            <div className="hidden md:block">
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-slate-900 text-xs sm:text-sm">
-                  Delivery Workflow
-                </span>
-                <span className="hidden sm:inline text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 text-slate-600 border border-slate-300/70 uppercase font-semibold">
-                  {viewMode === "interactive"
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 text-slate-600 border border-slate-300/70 uppercase font-semibold">
+                  {activePrimaryTab === "ecosystem"
+                    ? "agentfleet Operator Contract"
+                    : viewMode === "interactive"
                     ? "Interactive Mode"
                     : "Architecture Diagram"}
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-slate-600 hidden sm:block">
-                {viewMode === "interactive"
+              <p className="text-[11px] font-mono text-slate-600 mt-0.5">
+                {activePrimaryTab === "ecosystem"
+                  ? "Agent Forge & Agent Dashboard consume agentfleet, implemented by Sid & Rex."
+                  : viewMode === "interactive"
                   ? "Click stages to inspect details or simulate the autonomous feedback loop."
                   : "From idea to merged change · Human-led planning, agent execution, human approval."}
               </p>
@@ -292,7 +360,34 @@ export function InteractiveWorkflow() {
 
           {/* Action Controls */}
           <div className="flex items-center gap-2 text-xs font-mono ml-auto">
-            {viewMode === "interactive" ? (
+            {activePrimaryTab === "ecosystem" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setZoomedDiagram({
+                      src: "/charts/tools-landscape-en.svg",
+                      title: "Ecosystem & Contract — Operator Tools, agentfleet, and Coding Agents",
+                      desc: "Agent Forge & Agent Dashboard use agentfleet (lbacik/agent-operator-contract), implemented by simple-coding-agent (Sid) and coding-agent (Rex).",
+                    })
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 hover:border-slate-400 font-semibold transition-colors cursor-pointer"
+                  title="Zoom architecture diagram"
+                >
+                  <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="hidden sm:inline">Zoom Diagram</span>
+                </button>
+                <a
+                  href="/charts/tools-landscape-en.svg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
+                  title="Open raw vector SVG in new tab"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </>
+            ) : viewMode === "interactive" ? (
               <>
                 <button
                   type="button"
@@ -374,20 +469,28 @@ export function InteractiveWorkflow() {
               </>
             )}
 
-            <a
-              href="/charts/workflow-en.svg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
-              title="Open raw vector SVG in new tab"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            {activePrimaryTab === "workflow" && (
+              <a
+                href="/charts/workflow-en.svg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors hidden sm:inline-flex"
+                title="Open raw vector SVG in new tab"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
 
         {/* Main Panel Content */}
-        {viewMode === "blueprint" ? (
+        {activePrimaryTab === "ecosystem" ? (
+          <div role="tabpanel" aria-labelledby="workflow-primary-tab-ecosystem">
+            <EcosystemContractDiagram
+              onOpenDiagram={(diag) => setZoomedDiagram(diag)}
+            />
+          </div>
+        ) : viewMode === "blueprint" ? (
           /* =========================================================================
              ARCHITECTURE DIAGRAM (COMPACT 0.5X OR EXPANDED 1.0X)
              ========================================================================= */
@@ -902,6 +1005,779 @@ export function InteractiveWorkflow() {
         onRequestChangesRework={handleTriggerFeedbackLoop}
       />
     </div>
+  );
+}
+
+/* =========================================================================
+   ECOSYSTEM & CONTRACT DIAGRAM ("TOOLS LANDSCAPE" TAB)
+   ========================================================================= */
+
+function EcosystemContractDiagram({
+  onOpenDiagram,
+}: {
+  onOpenDiagram: (diag: { src: string; title: string; desc?: string }) => void;
+}) {
+  return (
+    <>
+      <div className="relative rounded-2xl bg-[#f6f8fb] ring-1 ring-slate-900/5 p-2 sm:p-3 animate-in fade-in duration-200">
+        {/* Enlarge button in top-right corner */}
+        <button
+          type="button"
+          onClick={() =>
+            onOpenDiagram({
+              src: "/charts/tools-landscape-en.svg",
+              title: "Tools & Agent Ecosystem — agentfleet Operator Contract",
+              desc: "Agent Forge & Agent Dashboard use agentfleet (lbacik/agent-operator-contract), implemented by simple-coding-agent (Sid) and coding-agent (Rex).",
+            })
+          }
+          className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/90 hover:bg-white text-slate-700 hover:text-blue-600 border border-slate-200/90 shadow-2xs text-[11px] font-mono font-semibold transition-all cursor-pointer"
+          title="Click to enlarge diagram"
+        >
+          <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+          <span className="hidden sm:inline">Enlarge</span>
+        </button>
+
+        {/* Inline Interactive Vector SVG */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1680 850"
+          role="img"
+          aria-labelledby="landscape-svg-title landscape-svg-desc"
+          className="w-full h-auto rounded-lg shadow-sm bg-[#f6f8fb]"
+        >
+          <title id="landscape-svg-title">
+            Tools &amp; Agent Ecosystem — Operator Tools, agentfleet Contract, and Coding Agent Engines
+          </title>
+          <desc id="landscape-svg-desc">
+            Agent Forge and Agent Dashboard consume the agentfleet client defined in agent-operator-contract, which is implemented by simple-coding-agent (Sid) and coding-agent (Rex).
+          </desc>
+          <defs>
+            <pattern id="eco-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+              <circle cx="1.5" cy="1.5" r="1.2" fill="#dbe2eb" />
+            </pattern>
+            <linearGradient id="eco-contractBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#eff6ff" />
+              <stop offset="100%" stopColor="#eef2ff" />
+            </linearGradient>
+            <linearGradient id="eco-contractAccent" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#2563eb" />
+              <stop offset="50%" stopColor="#4f46e5" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+            <marker
+              id="eco-arrowBlue"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto"
+            >
+              <path d="M0 0 L10 5 L0 10 Z" fill="#2563eb" />
+            </marker>
+            <marker
+              id="eco-arrowEmerald"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto"
+            >
+              <path d="M0 0 L10 5 L0 10 Z" fill="#059669" />
+            </marker>
+            <marker
+              id="eco-arrowAmber"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto"
+            >
+              <path d="M0 0 L10 5 L0 10 Z" fill="#d97706" />
+            </marker>
+          </defs>
+
+          <rect width="1680" height="850" fill="#f6f8fb" />
+          <rect y="136" width="1680" height="630" fill="url(#eco-grid)" opacity="0.65" />
+
+          {/* Header */}
+          <text
+            x="64"
+            y="66"
+            fill="#0f172a"
+            fontSize="34"
+            fontWeight="700"
+            fontFamily="var(--font-display), sans-serif"
+          >
+            Tools &amp; Agent Ecosystem
+          </text>
+          <text x="64" y="101" fill="#64748b" fontSize="18">
+            Operator tools and interchangeable coding agents connected through the neutral agentfleet contract
+          </text>
+          <path d="M64 132 H1616" stroke="#dbe2eb" strokeWidth="1.5" />
+
+          {/* Column Zone Headers */}
+          <rect x="64" y="156" width="430" height="36" rx="10" fill="#dbeafe" fillOpacity="0.8" />
+          <text
+            x="279"
+            y="179"
+            textAnchor="middle"
+            fill="#1d4ed8"
+            fontSize="13"
+            fontWeight="700"
+            letterSpacing="1.4"
+          >
+            01 · OPERATOR TOOLS (CONSUMERS)
+          </text>
+
+          <rect x="625" y="156" width="430" height="36" rx="10" fill="#e0e7ff" fillOpacity="0.95" />
+          <text
+            x="840"
+            y="179"
+            textAnchor="middle"
+            fill="#3730a3"
+            fontSize="13"
+            fontWeight="700"
+            letterSpacing="1.4"
+          >
+            02 · OPERATOR CONTRACT &amp; CLIENT
+          </text>
+
+          <rect x="1186" y="156" width="430" height="36" rx="10" fill="#d1fae5" fillOpacity="0.85" />
+          <text
+            x="1401"
+            y="179"
+            textAnchor="middle"
+            fill="#065f46"
+            fontSize="13"
+            fontWeight="700"
+            letterSpacing="1.4"
+          >
+            03 · CODING AGENT ENGINES (PRODUCERS)
+          </text>
+
+          {/* LEFT 1: Agent Forge */}
+          <a href="https://github.com/lbacik/agent-forge" target="_blank" rel="noopener noreferrer">
+            <rect
+              x="64"
+              y="216"
+              width="430"
+              height="236"
+              rx="20"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+            />
+            <path d="M86 216 H472" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
+            <rect x="92" y="242" width="128" height="26" rx="8" fill="#eff6ff" stroke="#bfdbfe" />
+            <text
+              x="156"
+              y="259"
+              textAnchor="middle"
+              fill="#1d4ed8"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              CLI &amp; Skills
+            </text>
+            <text
+              x="466"
+              y="260"
+              textAnchor="end"
+              fill="#2563eb"
+              fontSize="14"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              lbacik/agent-forge ↗
+            </text>
+            <text x="92" y="302" fill="#0f172a" fontSize="25" fontWeight="700">
+              Agent Forge
+            </text>
+            <text x="92" y="330" fill="#475569" fontSize="16">
+              Provision, scale &amp; operate dedicated instances
+            </text>
+            <path d="M92 350 H466" stroke="#e2e8f0" />
+            <rect x="92" y="366" width="112" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="148"
+              y="383"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              create-agent
+            </text>
+            <rect x="212" y="366" width="112" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="268"
+              y="383"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              manage-pool
+            </text>
+            <rect x="332" y="366" width="124" height="26" rx="6" fill="#eff6ff" stroke="#bfdbfe" />
+            <text
+              x="394"
+              y="383"
+              textAnchor="middle"
+              fill="#1d4ed8"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              operate-agent
+            </text>
+            <text x="92" y="424" fill="#64748b" fontSize="14">
+              Also ships debug-agent &amp; deploy-dashboard skills
+            </text>
+          </a>
+
+          {/* LEFT 2: Agent Dashboard */}
+          <a
+            href="https://github.com/lbacik/agent-dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <rect
+              x="64"
+              y="492"
+              width="430"
+              height="236"
+              rx="20"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+            />
+            <path d="M86 492 H472" stroke="#0284c7" strokeWidth="4" strokeLinecap="round" />
+            <rect x="92" y="518" width="138" height="26" rx="8" fill="#e0f2fe" stroke="#bae6fd" />
+            <text
+              x="161"
+              y="535"
+              textAnchor="middle"
+              fill="#0369a1"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Web UI · BETA
+            </text>
+            <text
+              x="466"
+              y="536"
+              textAnchor="end"
+              fill="#2563eb"
+              fontSize="14"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              lbacik/agent-dashboard ↗
+            </text>
+            <text x="92" y="578" fill="#0f172a" fontSize="25" fontWeight="700">
+              Agent Dashboard
+            </text>
+            <text x="92" y="606" fill="#475569" fontSize="16">
+              Observe &amp; command your container fleet
+            </text>
+            <path d="M92 626 H466" stroke="#e2e8f0" />
+            <rect x="92" y="642" width="122" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="153"
+              y="659"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Fleet Overview
+            </text>
+            <rect x="222" y="642" width="110" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="277"
+              y="659"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Unit Cockpit
+            </text>
+            <rect x="340" y="642" width="126" height="26" rx="6" fill="#e0f2fe" stroke="#bae6fd" />
+            <text
+              x="403"
+              y="659"
+              textAnchor="middle"
+              fill="#0369a1"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              2-Step Control
+            </text>
+            <text x="92" y="700" fill="#64748b" fontSize="14">
+              Live status polling, cost charts &amp; offline volume reads
+            </text>
+          </a>
+
+          {/* CENTER: agent-operator-contract (agentfleet) */}
+          <rect
+            x="615"
+            y="246"
+            width="450"
+            height="452"
+            rx="28"
+            fill="#e0e7ff"
+            fillOpacity="0.45"
+            stroke="#a5b4fc"
+            strokeWidth="1.5"
+            strokeDasharray="6 5"
+          />
+          <a
+            href="https://github.com/lbacik/agent-operator-contract"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <rect
+              x="629"
+              y="260"
+              width="422"
+              height="424"
+              rx="22"
+              fill="url(#eco-contractBg)"
+              stroke="#6366f1"
+              strokeWidth="2.5"
+            />
+            <path
+              d="M654 260 H1026"
+              stroke="url(#eco-contractAccent)"
+              strokeWidth="5"
+              strokeLinecap="round"
+            />
+            <rect x="657" y="288" width="166" height="28" rx="9" fill="#4f46e5" />
+            <text
+              x="740"
+              y="307"
+              textAnchor="middle"
+              fill="#ffffff"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              CONTRACT v1.x
+            </text>
+            <text
+              x="1023"
+              y="307"
+              textAnchor="end"
+              fill="#4338ca"
+              fontSize="13.5"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              agent-operator-contract ↗
+            </text>
+
+            <text x="657" y="352" fill="#0f172a" fontSize="28" fontWeight="700">
+              agentfleet
+            </text>
+            <text
+              x="657"
+              y="379"
+              fill="#3730a3"
+              fontSize="15.5"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              lbacik/agent-operator-contract
+            </text>
+            <text x="657" y="405" fill="#475569" fontSize="15">
+              Neutral specification, JSON Schemas &amp; host-side client
+            </text>
+
+            {/* Consumer API Sub-box */}
+            <rect
+              x="657"
+              y="426"
+              width="366"
+              height="84"
+              rx="14"
+              fill="#ffffff"
+              stroke="#bfdbfe"
+              strokeWidth="1.5"
+            />
+            <text
+              x="677"
+              y="451"
+              fill="#1d4ed8"
+              fontSize="11.5"
+              fontWeight="700"
+              letterSpacing="1.2"
+            >
+              HOST CLIENT &amp; CONSUMER API
+            </text>
+            <text
+              x="677"
+              y="476"
+              fill="#0f172a"
+              fontSize="15"
+              fontWeight="700"
+              fontFamily="var(--font-mono), monospace"
+            >
+              agentfleet CLI · client library
+            </text>
+            <text x="677" y="497" fill="#475569" fontSize="13.5">
+              discover · status · stop · resume · handoff · attempts
+            </text>
+
+            {/* Producer API Sub-box */}
+            <rect
+              x="657"
+              y="524"
+              width="366"
+              height="84"
+              rx="14"
+              fill="#ffffff"
+              stroke="#a7f3d0"
+              strokeWidth="1.5"
+            />
+            <text
+              x="677"
+              y="549"
+              fill="#047857"
+              fontSize="11.5"
+              fontWeight="700"
+              letterSpacing="1.2"
+            >
+              ENGINE PRODUCER INTERFACE
+            </text>
+            <text
+              x="677"
+              y="574"
+              fill="#0f172a"
+              fontSize="15"
+              fontWeight="700"
+              fontFamily="var(--font-mono), monospace"
+            >
+              agentctl --contract 1 · JSON Schemas
+            </text>
+            <text x="677" y="595" fill="#475569" fontSize="13.5">
+              Status Snapshot · Operator Commands · Offline Read
+            </text>
+
+            <rect x="657" y="624" width="366" height="36" rx="10" fill="#eef2ff" stroke="#c7d2fe" />
+            <text
+              x="840"
+              y="647"
+              textAnchor="middle"
+              fill="#3730a3"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Zero dependencies on engines or operator tools
+            </text>
+          </a>
+
+          {/* RIGHT 1: simple-coding-agent (Sid) */}
+          <a
+            href="https://github.com/lbacik/simple-coding-agent"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <rect
+              x="1186"
+              y="216"
+              width="430"
+              height="236"
+              rx="20"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+            />
+            <path d="M1208 216 H1594" stroke="#059669" strokeWidth="4" strokeLinecap="round" />
+            <rect x="1214" y="242" width="142" height="26" rx="8" fill="#d1fae5" stroke="#6ee7b7" />
+            <text
+              x="1285"
+              y="259"
+              textAnchor="middle"
+              fill="#065f46"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Sid · Production
+            </text>
+            <text
+              x="1588"
+              y="260"
+              textAnchor="end"
+              fill="#2563eb"
+              fontSize="14"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              lbacik/simple-coding-agent ↗
+            </text>
+            <text x="1214" y="302" fill="#0f172a" fontSize="25" fontWeight="700">
+              simple-coding-agent
+            </text>
+            <text x="1214" y="330" fill="#475569" fontSize="16">
+              Unattended autonomous coding agent (&ldquo;Sid&rdquo;)
+            </text>
+            <path d="M1214 350 H1588" stroke="#e2e8f0" />
+            <rect x="1214" y="366" width="136" height="26" rx="6" fill="#ecfdf5" stroke="#a7f3d0" />
+            <text
+              x="1282"
+              y="383"
+              textAnchor="middle"
+              fill="#065f46"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Claude Agent SDK
+            </text>
+            <rect x="1358" y="366" width="114" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="1415"
+              y="383"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Worker Pools
+            </text>
+            <rect x="1480" y="366" width="108" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="1534"
+              y="383"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              agentctl v1
+            </text>
+            <text x="1214" y="424" fill="#64748b" fontSize="14">
+              Claims ready-for-agent issues &amp; ships verified PRs
+            </text>
+          </a>
+
+          {/* RIGHT 2: coding-agent (Rex) */}
+          <a href="https://github.com/lbacik/coding-agent" target="_blank" rel="noopener noreferrer">
+            <rect
+              x="1186"
+              y="492"
+              width="430"
+              height="236"
+              rx="20"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+            />
+            <path d="M1208 492 H1594" stroke="#d97706" strokeWidth="4" strokeLinecap="round" />
+            <rect x="1214" y="518" width="156" height="26" rx="8" fill="#fef3c7" stroke="#fcd34d" />
+            <text
+              x="1292"
+              y="535"
+              textAnchor="middle"
+              fill="#92400e"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Rex · Experimental
+            </text>
+            <text
+              x="1588"
+              y="536"
+              textAnchor="end"
+              fill="#2563eb"
+              fontSize="14"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              lbacik/coding-agent ↗
+            </text>
+            <text x="1214" y="578" fill="#0f172a" fontSize="25" fontWeight="700">
+              coding-agent
+            </text>
+            <text x="1214" y="606" fill="#475569" fontSize="16">
+              Declarative step-workflow coding agent (&ldquo;Rex&rdquo;)
+            </text>
+            <path d="M1214 626 H1588" stroke="#e2e8f0" />
+            <rect x="1214" y="642" width="104" height="26" rx="6" fill="#fffbeb" stroke="#fde68a" />
+            <text
+              x="1266"
+              y="659"
+              textAnchor="middle"
+              fill="#92400e"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              LangGraph
+            </text>
+            <rect x="1326" y="642" width="136" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="1394"
+              y="659"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              YAML Workflows
+            </text>
+            <rect x="1470" y="642" width="118" height="26" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text
+              x="1529"
+              y="659"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="13"
+              fontWeight="600"
+              fontFamily="var(--font-mono), monospace"
+            >
+              Run Ledger
+            </text>
+            <text x="1214" y="700" fill="#64748b" fontSize="14">
+              Graph-driven step execution &amp; skill bundle policies
+            </text>
+          </a>
+
+          {/* Connectors Left -> Center */}
+          <path
+            d="M494 334 C555 334, 560 452, 621 452"
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth="2.5"
+            markerEnd="url(#eco-arrowBlue)"
+          />
+          <rect x="500" y="366" width="118" height="26" rx="8" fill="#eff6ff" stroke="#93c5fd" />
+          <text
+            x="559"
+            y="383"
+            textAnchor="middle"
+            fill="#1d4ed8"
+            fontSize="12.5"
+            fontWeight="700"
+            fontFamily="var(--font-mono), monospace"
+          >
+            uses agentfleet
+          </text>
+
+          <path
+            d="M494 610 C555 610, 560 482, 621 482"
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth="2.5"
+            markerEnd="url(#eco-arrowBlue)"
+          />
+          <rect x="500" y="544" width="118" height="26" rx="8" fill="#eff6ff" stroke="#93c5fd" />
+          <text
+            x="559"
+            y="561"
+            textAnchor="middle"
+            fill="#1d4ed8"
+            fontSize="12.5"
+            fontWeight="700"
+            fontFamily="var(--font-mono), monospace"
+          >
+            uses agentfleet
+          </text>
+
+          {/* Connectors Right -> Center */}
+          <path
+            d="M1186 334 C1125 334, 1120 550, 1059 550"
+            fill="none"
+            stroke="#059669"
+            strokeWidth="2.5"
+            strokeDasharray="7 4"
+            markerEnd="url(#eco-arrowEmerald)"
+          />
+          <rect x="1064" y="366" width="114" height="26" rx="8" fill="#ecfdf5" stroke="#6ee7b7" />
+          <text
+            x="1121"
+            y="383"
+            textAnchor="middle"
+            fill="#047857"
+            fontSize="12.5"
+            fontWeight="700"
+            fontFamily="var(--font-mono), monospace"
+          >
+            implements
+          </text>
+
+          <path
+            d="M1186 610 C1125 610, 1120 580, 1059 580"
+            fill="none"
+            stroke="#d97706"
+            strokeWidth="2.5"
+            strokeDasharray="7 4"
+            markerEnd="url(#eco-arrowAmber)"
+          />
+          <rect x="1064" y="544" width="114" height="26" rx="8" fill="#fffbeb" stroke="#fcd34d" />
+          <text
+            x="1121"
+            y="561"
+            textAnchor="middle"
+            fill="#b45309"
+            fontSize="12.5"
+            fontWeight="700"
+            fontFamily="var(--font-mono), monospace"
+          >
+            implements
+          </text>
+
+          {/* Bottom note */}
+          <path d="M64 766 H1616" stroke="#dbe2eb" strokeWidth="1.5" />
+          <text x="64" y="802" fill="#334155" fontSize="16" fontWeight="600">
+            Dependency inversion across the fleet:
+          </text>
+          <text x="365" y="802" fill="#64748b" fontSize="16">
+            Operator tools consume agentfleet; coding agents (Sid &amp; Rex) implement agent-operator-contract (agentctl).
+          </text>
+        </svg>
+      </div>
+
+      {/* Quick Repository Strip */}
+      <div className="px-2.5 sm:px-3 pt-2.5 pb-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-600">
+        <span>
+          Solid blue arrows: <code className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded">uses agentfleet</code> · Dashed arrows:{" "}
+          <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">implements agent-operator-contract</code>
+        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {ECOSYSTEM_REPOS.map((repo) => (
+            <a
+              key={repo.url}
+              href={repo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 hover:bg-white text-slate-700 hover:text-blue-600 border border-slate-300/70 transition-colors"
+            >
+              <GithubIcon className="w-3 h-3" />
+              <span>{repo.name}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
